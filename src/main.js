@@ -22,6 +22,9 @@ class GameScene extends Phaser.Scene {
     this.isDodging = false
     this.canDodge = true
     this.isInvulnerable = false
+    this.playerHealth = 100
+    this.canTakeDamage = true
+    this.isDead = false
 
     // Player / ground collision
     this.physics.add.collider(this.player, this.ground)
@@ -33,7 +36,8 @@ class GameScene extends Phaser.Scene {
       left: Phaser.Input.Keyboard.KeyCodes.A,
       right: Phaser.Input.Keyboard.KeyCodes.D,
       jump: Phaser.Input.Keyboard.KeyCodes.SPACE,
-      dodge: Phaser.Input.Keyboard.KeyCodes.SHIFT
+      dodge: Phaser.Input.Keyboard.KeyCodes.SHIFT,
+      restart: Phaser.Input.Keyboard.KeyCodes.R
     })
 
     // Title
@@ -42,9 +46,55 @@ class GameScene extends Phaser.Scene {
       fontSize: '28px',
       color: '#ffffff'
     })
+      
+    // Health Text
+    this.healthText = this.add.text(20, 60, 'Health: 100', {
+        fontFamily: 'Arial',
+        fontSize: '24px',
+        color: '#ffffff'
+    })
+
+    this.hazard = this.add.rectangle(800, 620, 80, 80, 0xff0000)
+    this.physics.add.existing(this.hazard, true)
+
+  this.physics.add.overlap(this.player, this.hazard, () => {
+  
+
+  if (this.canTakeDamage && !this.isInvulnerable) {
+    this.playerHealth = Math.max(0, this.playerHealth - 25)
+    this.healthText.setText(`Health: ${this.playerHealth}`)
+    if (this.playerHealth === 0) {
+  this.isDead = true
+
+  this.add.text(640, 300, 'SOULS SHATTERED', {
+    fontFamily: 'Arial',
+    fontSize: '64px',
+    color: '#ff0000'
+  }).setOrigin(0.5)
+}
+    
+    this.canTakeDamage = false
+
+    this.time.delayedCall(500, () => {
+      this.canTakeDamage = true
+      
+    })
   }
+})
+ 
+}
 
   update() {
+  
+  if (this.isDead) {
+  this.player.body.setVelocity(0, 0)
+
+  if (Phaser.Input.Keyboard.JustDown(this.keys.restart)) {
+    this.scene.restart()
+  }
+
+  return
+}
   const maxSpeed = 300
   const acceleration = 20
   const drag = 25
