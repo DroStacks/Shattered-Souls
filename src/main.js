@@ -17,6 +17,10 @@ class GameScene extends Phaser.Scene {
 
     this.player.body.setCollideWorldBounds(true)
 
+    // Player facing direction
+    this.facing = 'right'
+    this.isDodging = false
+
     // Player / ground collision
     this.physics.add.collider(this.player, this.ground)
 
@@ -26,7 +30,8 @@ class GameScene extends Phaser.Scene {
     this.keys = this.input.keyboard.addKeys({
       left: Phaser.Input.Keyboard.KeyCodes.A,
       right: Phaser.Input.Keyboard.KeyCodes.D,
-      jump: Phaser.Input.Keyboard.KeyCodes.SPACE
+      jump: Phaser.Input.Keyboard.KeyCodes.SPACE,
+      dodge: Phaser.Input.Keyboard.KeyCodes.SHIFT
     })
 
     // Title
@@ -38,25 +43,83 @@ class GameScene extends Phaser.Scene {
   }
 
   update() {
-    const speed = 300
+  const maxSpeed = 300
+  const acceleration = 20
+  const drag = 25
 
-    // Horizontal movement
-    if (this.keys.left.isDown || this.cursors.left.isDown) {
-      this.player.body.setVelocityX(-speed)
-    } else if (this.keys.right.isDown || this.cursors.right.isDown) {
-      this.player.body.setVelocityX(speed)
-    } else {
-      this.player.body.setVelocityX(0)
+  const movingLeft =
+    this.keys.left.isDown || this.cursors.left.isDown
+
+  const movingRight =
+    this.keys.right.isDown || this.cursors.right.isDown
+    
+   const dodgePressed =
+    Phaser.Input.Keyboard.JustDown(this.keys.dodge)
+   
+    if (dodgePressed && !this.isDodging) {
+      this.isDodging = true
+      this.player.body.setVelocityX(this.facing === 'right' ? 650 : -650)
+      this.time.delayedCall(300, () => {
+    this.isDodging = false
+  })
+      
+}
+
+  
+
+  if (movingLeft) {
+    this.player.body.velocity.x -= acceleration
+    this.facing = 'left'
+  } else if (movingRight) {
+    this.player.body.velocity.x += acceleration
+    this.facing = 'right'
+  } else {
+    if (this.player.body.velocity.x > 0) {
+      this.player.body.velocity.x -= drag
+
+      if (this.player.body.velocity.x < 0) {
+        this.player.body.velocity.x = 0
+      }
+    } else if (this.player.body.velocity.x < 0) {
+      this.player.body.velocity.x += drag
+
+      if (this.player.body.velocity.x > 0) {
+        this.player.body.velocity.x = 0
+      }
     }
+  }
 
-    // Jump
-    const wantsToJump =
-      Phaser.Input.Keyboard.JustDown(this.keys.jump) ||
-      Phaser.Input.Keyboard.JustDown(this.cursors.up)
+  if (!this.isDodging) {
+  this.player.body.velocity.x = Phaser.Math.Clamp(
+    this.player.body.velocity.x,
+    -maxSpeed,
+    maxSpeed
+  )
+}
+    // Jumping
+  const jumpPressed =
+  Phaser.Input.Keyboard.JustDown(this.keys.jump) ||
+  Phaser.Input.Keyboard.JustDown(this.cursors.up)
 
-    if (wantsToJump && this.player.body.blocked.down) {
-      this.player.body.setVelocityY(-600)
-    }
+const jumpHeld =
+  this.keys.jump.isDown ||
+  this.cursors.up.isDown
+
+if (jumpPressed && this.player.body.blocked.down) {
+  this.player.body.setVelocityY(-600)
+}
+
+// If the player releases jump early while still moving upward,
+// reduce upward speed to create a shorter hop.
+if (!jumpHeld && this.player.body.velocity.y < -250) {
+  this.player.body.setVelocityY(-250)
+}
+
+// Make falling a little heavier/faster than rising.
+if (this.player.body.velocity.y > 0) {
+  this.player.body.velocity.y += 20
+}
+  
   }
 }
 
