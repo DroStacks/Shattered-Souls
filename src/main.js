@@ -20,6 +20,8 @@ class GameScene extends Phaser.Scene {
     // Player facing direction
     this.facing = 'right'
     this.isDodging = false
+    this.canDodge = true
+    this.isInvulnerable = false
 
     // Player / ground collision
     this.physics.add.collider(this.player, this.ground)
@@ -56,17 +58,29 @@ class GameScene extends Phaser.Scene {
    const dodgePressed =
     Phaser.Input.Keyboard.JustDown(this.keys.dodge)
    
-    if (dodgePressed && !this.isDodging) {
+    if (dodgePressed && !this.isDodging && this.canDodge) {
       this.isDodging = true
+      this.canDodge = false
+      this.isInvulnerable = true
       this.player.body.setVelocityX(this.facing === 'right' ? 650 : -650)
+      
       this.time.delayedCall(300, () => {
-    this.isDodging = false
+      this.isDodging = false
   })
+
+      this.time.delayedCall(250, () => {
+      this.isInvulnerable = false
+      
+})
+
+      this.time.delayedCall(600, () => {
+      this.canDodge = true
+})
       
 }
 
   
-
+if (!this.isDodging) {
   if (movingLeft) {
     this.player.body.velocity.x -= acceleration
     this.facing = 'left'
@@ -88,7 +102,7 @@ class GameScene extends Phaser.Scene {
       }
     }
   }
-
+}
   if (!this.isDodging) {
   this.player.body.velocity.x = Phaser.Math.Clamp(
     this.player.body.velocity.x,
