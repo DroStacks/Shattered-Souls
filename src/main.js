@@ -7,15 +7,31 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
+    
+    this.physics.world.setBounds(0, 0, 6000, 1400)
+    
     // Ground
-    this.ground = this.add.rectangle(640, 680, 1280, 80, 0x444444)
+    this.ground = this.add.rectangle(2600, 680, 5200, 80, 0x444444)
     this.physics.add.existing(this.ground, true)
+    
+    // Boss arena floor
+    this.bossFloor = this.add.rectangle(5200, 1260, 1600, 80, 0x444444)
+    this.physics.add.existing(this.bossFloor, true)
+    
+    
+    // Platforms
+    this.platform = this.add.rectangle(700, 560, 220, 30, 0x666666)
+    this.physics.add.existing(this.platform, true)
+    this.platform2 = this.add.rectangle(1000, 450, 220, 30, 0x666666)
+    this.physics.add.existing(this.platform2, true)
+    
 
     // Player
     this.player = this.add.rectangle(200, 500, 50, 80, 0xffffff)
     this.physics.add.existing(this.player)
 
     this.player.body.setCollideWorldBounds(true)
+    this.cameras.main.startFollow(this.player)
 
     // Player facing direction
     this.facing = 'right'
@@ -36,7 +52,11 @@ class GameScene extends Phaser.Scene {
 
     // Player / ground collision
     this.physics.add.collider(this.player, this.ground)
-
+    this.physics.add.collider(this.player, this.platform)
+    this.physics.add.collider(this.player, this.platform2)
+    this.physics.add.collider(this.player, this.bossFloor)
+   
+   
     // Controls
     this.cursors = this.input.keyboard.createCursorKeys()
 
@@ -92,9 +112,31 @@ class GameScene extends Phaser.Scene {
 })
  
 // Basic test enemy
-this.enemy = this.add.rectangle(1000, 620, 50, 80, 0x00ff00)
-this.physics.add.existing(this.enemy, true)
+this.enemy = this.add.rectangle(1000, 580, 50, 80, 0x00ff00)
+this.physics.add.existing(this.enemy)
+this.physics.add.collider(this.enemy, this.ground)
 this.enemyHealth = 300
+this.physics.add.overlap(this.player, this.enemy, () => {
+  if (this.canTakeDamage && !this.isInvulnerable) {
+    this.playerHealth = Math.max(0, this.playerHealth - 50)
+    this.healthText.setText(`Health: ${this.playerHealth}`)
+    if (this.playerHealth === 0) {
+  this.isDead = true
+  this.enemy.body.setVelocityX(0)
+
+  this.add.text(640, 300, 'SOULS SHATTERED', {
+    fontFamily: 'Arial',
+    fontSize: '64px',
+    color: '#ff0000'
+  }).setOrigin(0.5)
+}
+    this.canTakeDamage = false
+
+    this.time.delayedCall(500, () => {
+      this.canTakeDamage = true
+    })
+  }
+})
 this.physics.add.overlap(this.swordHitbox, this.enemy, () => {
   if (!this.attackHasHit) {
     this.enemyHealth = Math.max(0, this.enemyHealth - this.swordDamage)
@@ -230,6 +272,15 @@ if (!jumpHeld && this.player.body.velocity.y < -250) {
 // Make falling a little heavier/faster than rising.
 if (this.player.body.velocity.y > 0) {
   this.player.body.velocity.y += 20
+}
+
+// Enemy movment towards player
+if (this.enemy.active) {
+  if (this.player.x < this.enemy.x) {
+    this.enemy.body.setVelocityX(-100)
+  } else {
+    this.enemy.body.setVelocityX(100)
+  }
 }
   
   }
