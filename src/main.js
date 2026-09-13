@@ -30,6 +30,10 @@ class GameScene extends Phaser.Scene {
     this.physics.add.existing(this.platform, true)
     this.platform2 = this.add.rectangle(1000, 450, 220, 30, 0x666666)
     this.physics.add.existing(this.platform2, true)
+    this.platform3 = this.add.rectangle(1700, 520, 250, 30, 0x666666)
+    this.physics.add.existing(this.platform3, true)
+    this.healthPickup2 = this.add.rectangle(1700, 480, 30, 30, 0xff69b4)
+    this.physics.add.existing(this.healthPickup2, true)
     
 
     // Player
@@ -62,6 +66,7 @@ class GameScene extends Phaser.Scene {
     this.physics.add.collider(this.player, this.ground)
     this.physics.add.collider(this.player, this.platform)
     this.physics.add.collider(this.player, this.platform2)
+    this.physics.add.collider(this.player, this.platform3)
     this.physics.add.collider(this.player, this.bossFloor)
    
    
@@ -98,9 +103,25 @@ this.staminaText = this.add.text(20, 90, 'Stamina: 100', {
   color: '#00ff00'
 }).setScrollFactor(0)
 
+    // Health pickup
+      this.healthPickup = this.add.rectangle(1400, 620, 30, 30, 0xff69b4)
+      this.physics.add.existing(this.healthPickup, true)
+      this.physics.add.overlap(this.player, this.healthPickup, () => {
+      this.playerHealth = Math.min(500, this.playerHealth + 100)
+      this.healthText.setText(`Health: ${this.playerHealth}`)
+      this.healthPickup.destroy()
+    })
+
+      this.physics.add.overlap(this.player, this.healthPickup2, () => {
+      this.playerHealth = Math.min(500, this.playerHealth + 100)
+      this.healthText.setText(`Health: ${this.playerHealth}`)
+      this.healthPickup2.destroy()
+    })
+
+
+
     this.hazard = this.add.rectangle(800, 620, 80, 80, 0xff0000)
     this.physics.add.existing(this.hazard, true)
-
     this.physics.add.overlap(this.player, this.hazard, () => {
   
 
@@ -108,13 +129,15 @@ this.staminaText = this.add.text(20, 90, 'Stamina: 100', {
     this.playerHealth = Math.max(0, this.playerHealth - 25)
     this.healthText.setText(`Health: ${this.playerHealth}`)
     if (this.playerHealth === 0) {
+  this.healthText.setText('Health: 0')
   this.isDead = true
+  this.boss.body.setVelocityX(0)
 
   this.add.text(640, 300, 'SOULS SHATTERED', {
     fontFamily: 'Arial',
     fontSize: '64px',
     color: '#ff0000'
-  }).setOrigin(0.5)
+  }).setOrigin(0.5).setScrollFactor(0)
 }
     
     this.canTakeDamage = false
@@ -126,7 +149,7 @@ this.staminaText = this.add.text(20, 90, 'Stamina: 100', {
   }
 })
  
-// Basic test enemy
+// Enemy collision and health management
 this.enemy = this.add.rectangle(1000, 580, 50, 80, 0x00ff00)
 this.physics.add.existing(this.enemy)
 this.physics.add.collider(this.enemy, this.ground)
@@ -164,6 +187,94 @@ this.physics.add.overlap(this.swordHitbox, this.enemy, () => {
   }
 })
 
+// Second Enemy collision and health management
+this.enemy2 = this.add.rectangle(1900, 580, 50, 80, 0x00ff00)
+this.physics.add.existing(this.enemy2)
+this.physics.add.collider(this.enemy2, this.ground)
+this.enemy2Health = 450
+this.physics.add.overlap(this.player, this.enemy2, () => {
+  if (this.canTakeDamage && !this.isInvulnerable) {
+    this.playerHealth = Math.max(0, this.playerHealth - 50)
+    this.healthText.setText(`Health: ${this.playerHealth}`)
+
+    if (this.playerHealth === 0) {
+      this.isDead = true
+      this.enemy2.body.setVelocityX(0)
+
+      this.add.text(640, 300, 'SOULS SHATTERED', {
+        fontFamily: 'Arial',
+        fontSize: '64px',
+        color: '#ff0000'
+      }).setOrigin(0.5).setScrollFactor(0)
+    }
+
+    this.canTakeDamage = false
+
+    this.time.delayedCall(500, () => {
+      this.canTakeDamage = true
+    })
+  }
+})
+
+this.physics.add.overlap(this.swordHitbox, this.enemy2, () => {
+  if (!this.attackHasHit) {
+    this.enemy2Health = Math.max(0, this.enemy2Health - this.swordDamage)
+    this.attackHasHit = true
+    console.log(`Enemy 2 Health: ${this.enemy2Health}`)
+
+    if (this.enemy2Health === 0) {
+      this.enemy2.destroy()
+    }
+  }
+})
+
+// Enemy 3 collision and health management
+this.enemy3 = this.add.rectangle(2500, 580, 50, 80, 0x00ff00)
+this.physics.add.existing(this.enemy3)
+this.physics.add.collider(this.enemy3, this.ground)
+this.enemy3Health = 600
+
+
+this.physics.add.overlap(this.player, this.enemy3, () => {
+  if (this.canTakeDamage && !this.isInvulnerable) {
+    this.playerHealth = Math.max(0, this.playerHealth - 75)
+    this.healthText.setText(`Health: ${this.playerHealth}`)
+
+    if (this.playerHealth === 0) {
+      this.isDead = true
+      this.enemy3.body.setVelocityX(0)
+
+      this.add.text(640, 300, 'SOULS SHATTERED', {
+        fontFamily: 'Arial',
+        fontSize: '64px',
+        color: '#ff0000'
+      }).setOrigin(0.5).setScrollFactor(0)
+    }
+
+    this.canTakeDamage = false
+
+    this.time.delayedCall(500, () => {
+      this.canTakeDamage = true
+    })
+  }
+})
+
+this.physics.add.overlap(this.swordHitbox, this.enemy3, () => {
+  if (!this.attackHasHit) {
+    this.enemy3Health = Math.max(0, this.enemy3Health - this.swordDamage)
+    this.attackHasHit = true
+    console.log(`Enemy 3 Health: ${this.enemy3Health}`)
+
+    if (this.enemy3Health === 0) {
+      this.enemy3.destroy()
+    }
+  }
+})
+// End of Enemy 3 collision and health management
+
+
+
+// Boss collision and health management
 this.physics.add.overlap(this.swordHitbox, this.boss, () => {
   if (!this.attackHasHit) {
     this.bossHealth = Math.max(0, this.bossHealth - this.swordDamage)
@@ -175,7 +286,30 @@ this.physics.add.overlap(this.swordHitbox, this.boss, () => {
   }
 })
 
+this.physics.add.overlap(this.player, this.boss, () => {
+  if (this.canTakeDamage && !this.isInvulnerable) {
+    this.playerHealth = Math.max(0, this.playerHealth - 75)
+    this.healthText.setText(`Health: ${this.playerHealth}`)
+    if (this.playerHealth === 0) {
+  this.isDead = true
+  this.boss.body.setVelocityX(0)
 
+  this.add.text(640, 300, 'SOULS SHATTERED', {
+    fontFamily: 'Arial',
+    fontSize: '64px',
+    color: '#ff0000'
+  }).setOrigin(0.5).setScrollFactor(0)
+}
+
+    this.canTakeDamage = false
+
+    this.time.delayedCall(500, () => {
+      this.canTakeDamage = true
+    })
+  }
+})
+
+// end of create method
 }
 
   update() {
@@ -305,7 +439,7 @@ if (this.player.body.velocity.y > 0) {
   this.player.body.velocity.y += 20
 }
 
-// Enemy movment towards player
+// Enemy 1 movment towards player
 if (this.enemy.active) {
   if (this.player.x < this.enemy.x) {
     this.enemy.body.setVelocityX(-100)
@@ -313,6 +447,34 @@ if (this.enemy.active) {
     this.enemy.body.setVelocityX(100)
   }
 }
+
+// Enemy 2 movement towards player
+if (this.enemy2.active) {
+  if (this.player.x < this.enemy2.x) {
+    this.enemy2.body.setVelocityX(-100)
+  } else {
+    this.enemy2.body.setVelocityX(100)
+  }
+}
+
+// Enemy 3 movement towards player
+if (this.enemy3.active) {
+  if (this.player.x < this.enemy3.x) {
+    this.enemy3.body.setVelocityX(-100)
+  } else {
+    this.enemy3.body.setVelocityX(100)
+  }
+}
+
+
+
+
+
+
+
+
+
+
 
 // Boss movement towards player
 if (this.boss.active && this.player.y > 900) {
