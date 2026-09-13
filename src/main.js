@@ -17,6 +17,12 @@ class GameScene extends Phaser.Scene {
     // Boss arena floor
     this.bossFloor = this.add.rectangle(5200, 1260, 1600, 80, 0x444444)
     this.physics.add.existing(this.bossFloor, true)
+    this.boss = this.add.rectangle(4800, 1100, 100, 160, 0x800080)
+    this.physics.add.existing(this.boss)
+    this.boss.body.setCollideWorldBounds(true)
+    this.physics.add.collider(this.boss, this.bossFloor)
+
+    this.bossHealth = 1000
     
     
     // Platforms
@@ -39,6 +45,8 @@ class GameScene extends Phaser.Scene {
     this.canDodge = true
     this.isInvulnerable = false
     this.playerHealth = 500
+    this.maxStamina = 100
+    this.stamina = 100
     this.canTakeDamage = true
     this.isDead = false
     this.isAttacking = false
@@ -80,8 +88,15 @@ class GameScene extends Phaser.Scene {
     this.healthText = this.add.text(20, 60, 'Health: 500', {
         fontFamily: 'Arial',
         fontSize: '24px',
-        color: '#ffffff'
-    })
+        color: '#ff0000'
+    }).setScrollFactor(0)
+
+    // Stamina Text
+this.staminaText = this.add.text(20, 90, 'Stamina: 100', {
+  fontFamily: 'Arial',
+  fontSize: '24px',
+  color: '#00ff00'
+}).setScrollFactor(0)
 
     this.hazard = this.add.rectangle(800, 620, 80, 80, 0xff0000)
     this.physics.add.existing(this.hazard, true)
@@ -149,6 +164,18 @@ this.physics.add.overlap(this.swordHitbox, this.enemy, () => {
   }
 })
 
+this.physics.add.overlap(this.swordHitbox, this.boss, () => {
+  if (!this.attackHasHit) {
+    this.bossHealth = Math.max(0, this.bossHealth - this.swordDamage)
+    this.attackHasHit = true
+    console.log('Boss Health:', this.bossHealth)
+    if (this.bossHealth === 0) {
+        this.boss.destroy()
+    }
+  }
+})
+
+
 }
 
   update() {
@@ -178,8 +205,10 @@ this.physics.add.overlap(this.swordHitbox, this.enemy, () => {
   const attackPressed =
     Phaser.Input.Keyboard.JustDown(this.keys.attack)
     
-  if (attackPressed && !this.isAttacking && !this.isDodging) {
+  if (attackPressed && !this.isAttacking && !this.isDodging && this.stamina >= 20) {
   this.isAttacking = true
+  this.stamina -= 20
+  this.staminaText.setText(`Stamina: ${this.stamina}`)
   this.attackHasHit = false
 
   const swordX =
@@ -187,9 +216,9 @@ this.physics.add.overlap(this.swordHitbox, this.enemy, () => {
       ? this.player.x + 45
       : this.player.x - 45
 
-  this.swordHitbox.setPosition(swordX, this.player.y)
-  this.swordHitbox.setVisible(true)
-  this.swordHitbox.body.enable = true
+this.swordHitbox.body.enable = true
+this.swordHitbox.body.reset(swordX, this.player.y)
+this.swordHitbox.setVisible(true)
 
   this.time.delayedCall(250, () => {
     this.isAttacking = false
@@ -198,8 +227,10 @@ this.physics.add.overlap(this.swordHitbox, this.enemy, () => {
   })
 }
    
-    if (dodgePressed && !this.isDodging && this.canDodge) {
+    if (dodgePressed && !this.isDodging && this.canDodge && this.stamina >= 30) {
       this.isDodging = true
+      this.stamina -= 30
+      this.staminaText.setText(`Stamina: ${this.stamina}`)
       this.canDodge = false
       this.isInvulnerable = true
       this.player.body.setVelocityX(this.facing === 'right' ? 650 : -650)
@@ -281,6 +312,21 @@ if (this.enemy.active) {
   } else {
     this.enemy.body.setVelocityX(100)
   }
+}
+
+// Boss movement towards player
+if (this.boss.active && this.player.y > 900) {
+  if (this.player.x < this.boss.x) {
+    this.boss.body.setVelocityX(-75)
+  } else {
+    this.boss.body.setVelocityX(75)
+  }
+}
+
+// Stamina regeneration
+if (this.stamina < this.maxStamina) {
+  this.stamina = Math.min(this.maxStamina, this.stamina + 0.5)
+  this.staminaText.setText(`Stamina: ${Math.floor(this.stamina)}`)
 }
   
   }
