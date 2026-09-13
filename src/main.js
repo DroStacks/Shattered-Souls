@@ -21,24 +21,73 @@ class GameScene extends Phaser.Scene {
     this.physics.add.existing(this.boss)
     this.boss.body.setCollideWorldBounds(true)
     this.physics.add.collider(this.boss, this.bossFloor)
-
+    // Invisible barrier that blocks regular enemies from entering boss arena
+    this.enemyBossBarrier = this.add.rectangle(5150, 340, 40, 680, 0xff0000, 0)
+    this.physics.add.existing(this.enemyBossBarrier, true)
     this.bossHealth = 1000
     
     
-    // Platforms
-    this.platform = this.add.rectangle(700, 560, 220, 30, 0x666666)
-    this.physics.add.existing(this.platform, true)
-    this.platform2 = this.add.rectangle(1000, 450, 220, 30, 0x666666)
-    this.physics.add.existing(this.platform2, true)
-    this.platform3 = this.add.rectangle(1700, 520, 250, 30, 0x666666)
-    this.physics.add.existing(this.platform3, true)
-    this.healthPickup2 = this.add.rectangle(1700, 480, 30, 30, 0xff69b4)
-    this.physics.add.existing(this.healthPickup2, true)
-    
+    // =====================
+// MAIN LEVEL PLATFORMS
+// =====================
+
+// Cluster 1
+this.platform = this.add.rectangle(700, 560, 220, 30, 0x666666)
+this.physics.add.existing(this.platform, true)
+
+this.platform2 = this.add.rectangle(1000, 500, 220, 30, 0x666666)
+this.physics.add.existing(this.platform2, true)
+
+this.platform3 = this.add.rectangle(1300, 440, 220, 30, 0x666666)
+this.physics.add.existing(this.platform3, true)
+
+
+// Cluster 2
+this.platform4 = this.add.rectangle(1800, 540, 250, 30, 0x666666)
+this.physics.add.existing(this.platform4, true)
+
+this.platform5 = this.add.rectangle(2100, 480, 250, 30, 0x666666)
+this.physics.add.existing(this.platform5, true)
+
+this.platform6 = this.add.rectangle(2400, 540, 250, 30, 0x666666)
+this.physics.add.existing(this.platform6, true)
+
+
+// Cluster 3
+this.platform7 = this.add.rectangle(3100, 560, 250, 30, 0x666666)
+this.physics.add.existing(this.platform7, true)
+
+this.platform8 = this.add.rectangle(3400, 500, 250, 30, 0x666666)
+this.physics.add.existing(this.platform8, true)
+
+this.platform9 = this.add.rectangle(3700, 440, 250, 30, 0x666666)
+this.physics.add.existing(this.platform9, true)
+
+
+// Final platform near boss entrance
+this.platform10 = this.add.rectangle(4500, 520, 250, 30, 0x666666)
+this.physics.add.existing(this.platform10, true)
+
+    // Boss Arena Platform 1
+        this.bossPlatform1 = this.add.rectangle(4700, 1100, 250, 30, 0x666666)
+        this.physics.add.existing(this.bossPlatform1, true)
+
+    // Boss Arena Platform 2
+        this.bossPlatform2 = this.add.rectangle(5200, 980, 250, 30, 0x666666)
+        this.physics.add.existing(this.bossPlatform2, true)
+
+    // Boss Arena Platform 3
+        this.bossPlatform3 = this.add.rectangle(5700, 1100, 250, 30, 0x666666)
+        this.physics.add.existing(this.bossPlatform3, true)
+        
+        
+        
 
     // Player
     this.player = this.add.rectangle(200, 500, 50, 80, 0xffffff)
     this.physics.add.existing(this.player)
+    // Smaller player hurtbox
+    this.player.body.setSize(30, 60, true)
 
     this.player.body.setCollideWorldBounds(true)
     this.cameras.main.startFollow(this.player)
@@ -48,13 +97,14 @@ class GameScene extends Phaser.Scene {
     this.isDodging = false
     this.canDodge = true
     this.isInvulnerable = false
-    this.playerHealth = 500
+    this.playerHealth = 1000
     this.maxStamina = 100
     this.stamina = 100
     this.canTakeDamage = true
     this.isDead = false
+    this.isVictorious = false
     this.isAttacking = false
-    this.swordDamage = 150
+    this.swordDamage = 207
     this.attackHasHit = false
     this.swordHitbox = this.add.rectangle(0, 0, 40, 60, 0xffff00)
     this.physics.add.existing(this.swordHitbox)
@@ -67,7 +117,20 @@ class GameScene extends Phaser.Scene {
     this.physics.add.collider(this.player, this.platform)
     this.physics.add.collider(this.player, this.platform2)
     this.physics.add.collider(this.player, this.platform3)
+    this.physics.add.collider(this.player, this.platform4)
+    this.physics.add.collider(this.player, this.platform5)
+    this.physics.add.collider(this.player, this.platform6)
+    this.physics.add.collider(this.player, this.platform7)
+    this.physics.add.collider(this.player, this.platform8)
+    this.physics.add.collider(this.player, this.platform9)
+    this.physics.add.collider(this.player, this.platform10)
+    
+    // Boss arena collisions
+    this.physics.add.collider(this.player, this.bossPlatform1)
+    this.physics.add.collider(this.player, this.bossPlatform2)
+    this.physics.add.collider(this.player, this.bossPlatform3)
     this.physics.add.collider(this.player, this.bossFloor)
+    
    
    
     // Controls
@@ -82,15 +145,10 @@ class GameScene extends Phaser.Scene {
       attack: Phaser.Input.Keyboard.KeyCodes.W
     })
 
-    // Title
-    this.add.text(20, 20, 'SHATTERED SOULS - Prototype', {
-      fontFamily: 'Arial',
-      fontSize: '28px',
-      color: '#ffffff'
-    })
+    
       
     // Health Text
-    this.healthText = this.add.text(20, 60, 'Health: 500', {
+    this.healthText = this.add.text(20, 60, 'Health: 1000', {
         fontFamily: 'Arial',
         fontSize: '24px',
         color: '#ff0000'
@@ -103,50 +161,137 @@ this.staminaText = this.add.text(20, 90, 'Stamina: 100', {
   color: '#00ff00'
 }).setScrollFactor(0)
 
-    // Health pickup
-      this.healthPickup = this.add.rectangle(1400, 620, 30, 30, 0xff69b4)
-      this.physics.add.existing(this.healthPickup, true)
-      this.physics.add.overlap(this.player, this.healthPickup, () => {
-      this.playerHealth = Math.min(500, this.playerHealth + 100)
+    // =====================
+// HEALTH PICKUPS
+// =====================
+
+// Pickup 1 - Ground
+this.healthPickup = this.add.rectangle(1400, 620, 30, 30, 0xff69b4)
+this.physics.add.existing(this.healthPickup, true)
+
+// Pickup 2 - Platform 3
+this.healthPickup2 = this.add.rectangle(1300, 400, 30, 30, 0xff69b4)
+this.physics.add.existing(this.healthPickup2, true)
+
+// Pickup 3 - Platform 4
+this.healthPickup3 = this.add.rectangle(1800, 500, 30, 30, 0xff69b4)
+this.physics.add.existing(this.healthPickup3, true)
+
+// Pickup 4 - Platform 5
+this.healthPickup4 = this.add.rectangle(2100, 440, 30, 30, 0xff69b4)
+this.physics.add.existing(this.healthPickup4, true)
+
+// Pickup 5 - Platform 6
+this.healthPickup5 = this.add.rectangle(2400, 500, 30, 30, 0xff69b4)
+this.physics.add.existing(this.healthPickup5, true)
+
+// Pickup 6 - Platform 7
+this.healthPickup6 = this.add.rectangle(3100, 520, 30, 30, 0xff69b4)
+this.physics.add.existing(this.healthPickup6, true)
+
+// Pickup 7 - Platform 8
+this.healthPickup7 = this.add.rectangle(3400, 460, 30, 30, 0xff69b4)
+this.physics.add.existing(this.healthPickup7, true)
+
+// Pickup 8 - Platform 9
+this.healthPickup8 = this.add.rectangle(3700, 400, 30, 30, 0xff69b4)
+this.physics.add.existing(this.healthPickup8, true)
+
+// Pickup 9 - Platform 10
+this.healthPickup9 = this.add.rectangle(4500, 480, 30, 30, 0xff69b4)
+this.physics.add.existing(this.healthPickup9, true)
+
+// Pickup 10 - Boss Platform 1
+this.healthPickup10 = this.add.rectangle(4700, 1060, 30, 30, 0xff69b4)
+this.physics.add.existing(this.healthPickup10, true)
+
+// Pickup 11 - Boss Platform 2
+this.healthPickup11 = this.add.rectangle(5200, 940, 30, 30, 0xff69b4)
+this.physics.add.existing(this.healthPickup11, true)
+
+// Pickup 12 - Boss Platform 3
+this.healthPickup12 = this.add.rectangle(5700, 1060, 30, 30, 0xff69b4)
+this.physics.add.existing(this.healthPickup12, true)
+
+
+// All health pickups
+const healthPickups = [
+  this.healthPickup,
+  this.healthPickup2,
+  this.healthPickup3,
+  this.healthPickup4,
+  this.healthPickup5,
+  this.healthPickup6,
+  this.healthPickup7,
+  this.healthPickup8,
+  this.healthPickup9,
+  this.healthPickup10,
+  this.healthPickup11,
+  this.healthPickup12
+]
+
+healthPickups.forEach((pickup) => {
+  this.physics.add.overlap(this.player, pickup, () => {
+    if (pickup.active) {
+      this.playerHealth = Math.min(1000, this.playerHealth + 100)
       this.healthText.setText(`Health: ${this.playerHealth}`)
-      this.healthPickup.destroy()
-    })
+      pickup.destroy()
+    }
+  })
+})
 
-      this.physics.add.overlap(this.player, this.healthPickup2, () => {
-      this.playerHealth = Math.min(500, this.playerHealth + 100)
+
+
+    // =====================
+// FIRE HAZARDS
+// =====================
+
+// Hazard 1
+this.hazard = this.add.rectangle(800, 620, 80, 80, 0xff0000)
+this.physics.add.existing(this.hazard, true)
+
+// Hazard 2
+this.hazard2 = this.add.rectangle(1900, 620, 80, 80, 0xff0000)
+this.physics.add.existing(this.hazard2, true)
+
+// Hazard 3
+this.hazard3 = this.add.rectangle(3300, 620, 80, 80, 0xff0000)
+this.physics.add.existing(this.hazard3, true)
+
+// Hazard 4
+this.hazard4 = this.add.rectangle(4300, 620, 80, 80, 0xff0000)
+this.physics.add.existing(this.hazard4, true)
+
+const hazards = [
+  this.hazard,
+  this.hazard2,
+  this.hazard3,
+  this.hazard4
+]
+
+hazards.forEach((hazard) => {
+  this.physics.add.overlap(this.player, hazard, () => {
+    if (this.canTakeDamage && !this.isInvulnerable) {
+      this.playerHealth = Math.max(0, this.playerHealth - 25)
       this.healthText.setText(`Health: ${this.playerHealth}`)
-      this.healthPickup2.destroy()
-    })
 
+      if (this.playerHealth === 0) {
+        this.isDead = true
 
+        this.add.text(640, 300, 'SOULS SHATTERED', {
+          fontFamily: 'Arial',
+          fontSize: '64px',
+          color: '#ff0000'
+        }).setOrigin(0.5).setScrollFactor(0)
+      }
 
-    this.hazard = this.add.rectangle(800, 620, 80, 80, 0xff0000)
-    this.physics.add.existing(this.hazard, true)
-    this.physics.add.overlap(this.player, this.hazard, () => {
-  
+      this.canTakeDamage = false
 
-  if (this.canTakeDamage && !this.isInvulnerable) {
-    this.playerHealth = Math.max(0, this.playerHealth - 25)
-    this.healthText.setText(`Health: ${this.playerHealth}`)
-    if (this.playerHealth === 0) {
-  this.healthText.setText('Health: 0')
-  this.isDead = true
-  this.boss.body.setVelocityX(0)
-
-  this.add.text(640, 300, 'SOULS SHATTERED', {
-    fontFamily: 'Arial',
-    fontSize: '64px',
-    color: '#ff0000'
-  }).setOrigin(0.5).setScrollFactor(0)
-}
-    
-    this.canTakeDamage = false
-
-    this.time.delayedCall(500, () => {
-      this.canTakeDamage = true
-      
-    })
-  }
+      this.time.delayedCall(500, () => {
+        this.canTakeDamage = true
+      })
+    }
+  })
 })
  
 // Enemy collision and health management
@@ -154,6 +299,7 @@ this.enemy = this.add.rectangle(1000, 580, 50, 80, 0x00ff00)
 this.physics.add.existing(this.enemy)
 this.physics.add.collider(this.enemy, this.ground)
 this.enemyHealth = 300
+this.enemyAggro = false
 this.physics.add.overlap(this.player, this.enemy, () => {
   if (this.canTakeDamage && !this.isInvulnerable) {
     this.playerHealth = Math.max(0, this.playerHealth - 50)
@@ -192,6 +338,7 @@ this.enemy2 = this.add.rectangle(1900, 580, 50, 80, 0x00ff00)
 this.physics.add.existing(this.enemy2)
 this.physics.add.collider(this.enemy2, this.ground)
 this.enemy2Health = 450
+this.enemy2Aggro = false
 this.physics.add.overlap(this.player, this.enemy2, () => {
   if (this.canTakeDamage && !this.isInvulnerable) {
     this.playerHealth = Math.max(0, this.playerHealth - 50)
@@ -233,7 +380,7 @@ this.enemy3 = this.add.rectangle(2500, 580, 50, 80, 0x00ff00)
 this.physics.add.existing(this.enemy3)
 this.physics.add.collider(this.enemy3, this.ground)
 this.enemy3Health = 600
-
+this.enemy3Aggro = false
 
 this.physics.add.overlap(this.player, this.enemy3, () => {
   if (this.canTakeDamage && !this.isInvulnerable) {
@@ -272,6 +419,188 @@ this.physics.add.overlap(this.swordHitbox, this.enemy3, () => {
 })
 // End of Enemy 3 collision and health management
 
+// Enemy 4
+this.enemy4 = this.add.rectangle(3100, 580, 50, 80, 0x00bfff)
+this.physics.add.existing(this.enemy4)
+this.physics.add.collider(this.enemy4, this.ground)
+this.enemy4Health = 450
+this.enemy4Aggro = false
+
+this.physics.add.overlap(this.player, this.enemy4, () => {
+  if (this.canTakeDamage && !this.isInvulnerable) {
+    this.playerHealth = Math.max(0, this.playerHealth - 50)
+    this.healthText.setText(`Health: ${this.playerHealth}`)
+
+    if (this.playerHealth === 0) {
+      this.isDead = true
+      this.enemy4.body.setVelocityX(0)
+
+      this.add.text(640, 300, 'SOULS SHATTERED', {
+        fontFamily: 'Arial',
+        fontSize: '64px',
+        color: '#ff0000'
+      }).setOrigin(0.5).setScrollFactor(0)
+    }
+
+    this.canTakeDamage = false
+
+    this.time.delayedCall(500, () => {
+      this.canTakeDamage = true
+    })
+  }
+})
+
+this.physics.add.overlap(this.swordHitbox, this.enemy4, () => {
+  if (!this.attackHasHit) {
+    this.enemy4Health = Math.max(0, this.enemy4Health - this.swordDamage)
+    this.attackHasHit = true
+    console.log(`Enemy 4 Health: ${this.enemy4Health}`)
+
+    if (this.enemy4Health === 0) {
+      this.enemy4.destroy()
+    }
+  }
+})
+
+
+// Enemy 5
+this.enemy5 = this.add.rectangle(3600, 575, 60, 90, 0xffa500)
+this.physics.add.existing(this.enemy5)
+this.physics.add.collider(this.enemy5, this.ground)
+this.enemy5Health = 600
+this.enemy5Aggro = false
+this.physics.add.overlap(this.player, this.enemy5, () => {
+  if (this.canTakeDamage && !this.isInvulnerable) {
+    this.playerHealth = Math.max(0, this.playerHealth - 75)
+    this.healthText.setText(`Health: ${this.playerHealth}`)
+
+    if (this.playerHealth === 0) {
+      this.isDead = true
+      this.enemy5.body.setVelocityX(0)
+
+      this.add.text(640, 300, 'SOULS SHATTERED', {
+        fontFamily: 'Arial',
+        fontSize: '64px',
+        color: '#ff0000'
+      }).setOrigin(0.5).setScrollFactor(0)
+    }
+
+    this.canTakeDamage = false
+
+    this.time.delayedCall(500, () => {
+      this.canTakeDamage = true
+    })
+  }
+})
+
+this.physics.add.overlap(this.swordHitbox, this.enemy5, () => {
+  if (!this.attackHasHit) {
+    this.enemy5Health = Math.max(0, this.enemy5Health - this.swordDamage)
+    this.attackHasHit = true
+    console.log(`Enemy 5 Health: ${this.enemy5Health}`)
+
+    if (this.enemy5Health === 0) {
+      this.enemy5.destroy()
+    }
+  }
+})
+
+
+// Enemy 6
+this.enemy6 = this.add.rectangle(4100, 590, 45, 70, 0xff00ff)
+this.physics.add.existing(this.enemy6)
+this.physics.add.collider(this.enemy6, this.ground)
+this.enemy6Health = 300
+this.enemy6Aggro = false
+this.physics.add.overlap(this.player, this.enemy6, () => {
+  if (this.canTakeDamage && !this.isInvulnerable) {
+    this.playerHealth = Math.max(0, this.playerHealth - 100)
+    this.healthText.setText(`Health: ${this.playerHealth}`)
+
+    if (this.playerHealth === 0) {
+      this.isDead = true
+      this.enemy6.body.setVelocityX(0)
+
+      this.add.text(640, 300, 'SOULS SHATTERED', {
+        fontFamily: 'Arial',
+        fontSize: '64px',
+        color: '#ff0000'
+      }).setOrigin(0.5).setScrollFactor(0)
+    }
+
+    this.canTakeDamage = false
+
+    this.time.delayedCall(500, () => {
+      this.canTakeDamage = true
+    })
+  }
+})
+
+this.physics.add.overlap(this.swordHitbox, this.enemy6, () => {
+  if (!this.attackHasHit) {
+    this.enemy6Health = Math.max(0, this.enemy6Health - this.swordDamage)
+    this.attackHasHit = true
+    console.log(`Enemy 6 Health: ${this.enemy6Health}`)
+
+    if (this.enemy6Health === 0) {
+      this.enemy6.destroy()
+    }
+  }
+})
+
+
+// Enemy 7
+this.enemy7 = this.add.rectangle(4600, 575, 70, 100, 0xff4500)
+this.physics.add.existing(this.enemy7)
+this.physics.add.collider(this.enemy7, this.ground)
+this.enemy7Health = 750
+this.enemy7Aggro = false
+
+this.physics.add.overlap(this.player, this.enemy7, () => {
+  if (this.canTakeDamage && !this.isInvulnerable) {
+    this.playerHealth = Math.max(0, this.playerHealth - 100)
+    this.healthText.setText(`Health: ${this.playerHealth}`)
+
+    if (this.playerHealth === 0) {
+      this.isDead = true
+      this.enemy7.body.setVelocityX(0)
+
+      this.add.text(640, 300, 'SOULS SHATTERED', {
+        fontFamily: 'Arial',
+        fontSize: '64px',
+        color: '#ff0000'
+      }).setOrigin(0.5).setScrollFactor(0)
+    }
+
+    this.canTakeDamage = false
+
+    this.time.delayedCall(500, () => {
+      this.canTakeDamage = true
+    })
+  }
+})
+
+this.physics.add.overlap(this.swordHitbox, this.enemy7, () => {
+  if (!this.attackHasHit) {
+    this.enemy7Health = Math.max(0, this.enemy7Health - this.swordDamage)
+    this.attackHasHit = true
+    console.log(`Enemy 7 Health: ${this.enemy7Health}`)
+
+    if (this.enemy7Health === 0) {
+      this.enemy7.destroy()
+    }
+  }
+})
+
+// Enemy boss barrier collisions
+this.physics.add.collider(this.enemy, this.enemyBossBarrier)
+this.physics.add.collider(this.enemy2, this.enemyBossBarrier)
+this.physics.add.collider(this.enemy3, this.enemyBossBarrier)
+this.physics.add.collider(this.enemy4, this.enemyBossBarrier)
+this.physics.add.collider(this.enemy5, this.enemyBossBarrier)
+this.physics.add.collider(this.enemy6, this.enemyBossBarrier)
+this.physics.add.collider(this.enemy7, this.enemyBossBarrier)
+
 
 
 // Boss collision and health management
@@ -281,8 +610,27 @@ this.physics.add.overlap(this.swordHitbox, this.boss, () => {
     this.attackHasHit = true
     console.log('Boss Health:', this.bossHealth)
     if (this.bossHealth === 0) {
-        this.boss.destroy()
-    }
+  this.boss.destroy()
+  this.isVictorious = true
+
+  this.add.text(640, 260, 'SOUL RESTORED', {
+    fontFamily: 'Arial',
+    fontSize: '64px',
+    color: '#00aaff'
+  }).setOrigin(0.5).setScrollFactor(0)
+
+  this.add.text(640, 330, 'The shattered soul has been reclaimed.', {
+    fontFamily: 'Arial',
+    fontSize: '28px',
+    color: '#00aaff'
+  }).setOrigin(0.5).setScrollFactor(0)
+
+  this.add.text(640, 390, 'Press R to Play Again', {
+    fontFamily: 'Arial',
+    fontSize: '24px',
+    color: '#00aaff'
+  }).setOrigin(0.5).setScrollFactor(0)
+}
   }
 })
 
@@ -322,7 +670,20 @@ this.physics.add.overlap(this.player, this.boss, () => {
   }
 
   return
+
 }
+
+ if (this.isVictorious) {
+    this.player.body.setVelocity(0, 0)
+
+    if (Phaser.Input.Keyboard.JustDown(this.keys.restart)) {
+      this.scene.restart()
+    }
+
+    return
+  }
+
+
   const maxSpeed = 300
   const acceleration = 20
   const drag = 25
@@ -439,34 +800,143 @@ if (this.player.body.velocity.y > 0) {
   this.player.body.velocity.y += 20
 }
 
-// Enemy 1 movment towards player
+// Enemy 1 aggro + movement
 if (this.enemy.active) {
-  if (this.player.x < this.enemy.x) {
-    this.enemy.body.setVelocityX(-100)
+  const distanceToEnemy = Math.abs(this.player.x - this.enemy.x)
+
+  if (!this.enemyAggro && distanceToEnemy <= 500) {
+    this.enemyAggro = true
+  }
+
+  if (this.enemyAggro) {
+    if (this.player.x < this.enemy.x) {
+      this.enemy.body.setVelocityX(-100)
+    } else {
+      this.enemy.body.setVelocityX(100)
+    }
   } else {
-    this.enemy.body.setVelocityX(100)
+    this.enemy.body.setVelocityX(0)
   }
 }
 
-// Enemy 2 movement towards player
+// Enemy 2 aggro + movement
 if (this.enemy2.active) {
-  if (this.player.x < this.enemy2.x) {
-    this.enemy2.body.setVelocityX(-100)
+  const distanceToEnemy2 = Math.abs(this.player.x - this.enemy2.x)
+
+  if (!this.enemy2Aggro && distanceToEnemy2 <= 500) {
+    this.enemy2Aggro = true
+  }
+
+  if (this.enemy2Aggro) {
+    if (this.player.x < this.enemy2.x) {
+      this.enemy2.body.setVelocityX(-100)
+    } else {
+      this.enemy2.body.setVelocityX(100)
+    }
   } else {
-    this.enemy2.body.setVelocityX(100)
+    this.enemy2.body.setVelocityX(0)
   }
 }
 
-// Enemy 3 movement towards player
+
+// Enemy 3 aggro + movement
 if (this.enemy3.active) {
-  if (this.player.x < this.enemy3.x) {
-    this.enemy3.body.setVelocityX(-100)
+  const distanceToEnemy3 = Math.abs(this.player.x - this.enemy3.x)
+
+  if (!this.enemy3Aggro && distanceToEnemy3 <= 500) {
+    this.enemy3Aggro = true
+  }
+
+  if (this.enemy3Aggro) {
+    if (this.player.x < this.enemy3.x) {
+      this.enemy3.body.setVelocityX(-100)
+    } else {
+      this.enemy3.body.setVelocityX(100)
+    }
   } else {
-    this.enemy3.body.setVelocityX(100)
+    this.enemy3.body.setVelocityX(0)
   }
 }
 
 
+// Enemy 4 aggro + movement
+if (this.enemy4.active) {
+  const distanceToEnemy4 = Math.abs(this.player.x - this.enemy4.x)
+
+  if (!this.enemy4Aggro && distanceToEnemy4 <= 500) {
+    this.enemy4Aggro = true
+  }
+
+  if (this.enemy4Aggro) {
+    if (this.player.x < this.enemy4.x) {
+      this.enemy4.body.setVelocityX(-100)
+    } else {
+      this.enemy4.body.setVelocityX(100)
+    }
+  } else {
+    this.enemy4.body.setVelocityX(0)
+  }
+}
+
+
+// Enemy 5 aggro + movement
+if (this.enemy5.active) {
+  const distanceToEnemy5 = Math.abs(this.player.x - this.enemy5.x)
+
+  if (!this.enemy5Aggro && distanceToEnemy5 <= 500) {
+    this.enemy5Aggro = true
+  }
+
+  if (this.enemy5Aggro) {
+    if (this.player.x < this.enemy5.x) {
+      this.enemy5.body.setVelocityX(-90)
+    } else {
+      this.enemy5.body.setVelocityX(90)
+    }
+  } else {
+    this.enemy5.body.setVelocityX(0)
+  }
+}
+
+
+// Enemy 6 aggro + movement
+if (this.enemy6.active) {
+  const distanceToEnemy6 = Math.abs(this.player.x - this.enemy6.x)
+
+  if (!this.enemy6Aggro && distanceToEnemy6 <= 500) {
+    this.enemy6Aggro = true
+  }
+
+  if (this.enemy6Aggro) {
+    if (this.player.x < this.enemy6.x) {
+      this.enemy6.body.setVelocityX(-130)
+    } else {
+      this.enemy6.body.setVelocityX(130)
+    }
+  } else {
+    this.enemy6.body.setVelocityX(0)
+  }
+}
+
+
+// Enemy 7 aggro + movement
+if (this.enemy7.active) {
+  const distanceToEnemy7 = Math.abs(this.player.x - this.enemy7.x)
+
+  if (!this.enemy7Aggro && distanceToEnemy7 <= 500) {
+    this.enemy7Aggro = true
+  }
+
+  if (this.enemy7Aggro) {
+    if (this.player.x < this.enemy7.x) {
+      this.enemy7.body.setVelocityX(-80)
+    } else {
+      this.enemy7.body.setVelocityX(80)
+    }
+  } else {
+    this.enemy7.body.setVelocityX(0)
+  }
+}
 
 
 
