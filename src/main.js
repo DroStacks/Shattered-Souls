@@ -22,9 +22,17 @@ class GameScene extends Phaser.Scene {
     this.isDodging = false
     this.canDodge = true
     this.isInvulnerable = false
-    this.playerHealth = 100
+    this.playerHealth = 500
     this.canTakeDamage = true
     this.isDead = false
+    this.isAttacking = false
+    this.swordDamage = 150
+    this.attackHasHit = false
+    this.swordHitbox = this.add.rectangle(0, 0, 40, 60, 0xffff00)
+    this.physics.add.existing(this.swordHitbox)
+    this.swordHitbox.body.setAllowGravity(false)
+    this.swordHitbox.setVisible(false)
+    this.swordHitbox.body.enable = false
 
     // Player / ground collision
     this.physics.add.collider(this.player, this.ground)
@@ -37,7 +45,8 @@ class GameScene extends Phaser.Scene {
       right: Phaser.Input.Keyboard.KeyCodes.D,
       jump: Phaser.Input.Keyboard.KeyCodes.SPACE,
       dodge: Phaser.Input.Keyboard.KeyCodes.SHIFT,
-      restart: Phaser.Input.Keyboard.KeyCodes.R
+      restart: Phaser.Input.Keyboard.KeyCodes.R,
+      attack: Phaser.Input.Keyboard.KeyCodes.W
     })
 
     // Title
@@ -48,7 +57,7 @@ class GameScene extends Phaser.Scene {
     })
       
     // Health Text
-    this.healthText = this.add.text(20, 60, 'Health: 100', {
+    this.healthText = this.add.text(20, 60, 'Health: 500', {
         fontFamily: 'Arial',
         fontSize: '24px',
         color: '#ffffff'
@@ -57,7 +66,7 @@ class GameScene extends Phaser.Scene {
     this.hazard = this.add.rectangle(800, 620, 80, 80, 0xff0000)
     this.physics.add.existing(this.hazard, true)
 
-  this.physics.add.overlap(this.player, this.hazard, () => {
+    this.physics.add.overlap(this.player, this.hazard, () => {
   
 
   if (this.canTakeDamage && !this.isInvulnerable) {
@@ -82,6 +91,22 @@ class GameScene extends Phaser.Scene {
   }
 })
  
+// Basic test enemy
+this.enemy = this.add.rectangle(1000, 620, 50, 80, 0x00ff00)
+this.physics.add.existing(this.enemy, true)
+this.enemyHealth = 300
+this.physics.add.overlap(this.swordHitbox, this.enemy, () => {
+  if (!this.attackHasHit) {
+    this.enemyHealth = Math.max(0, this.enemyHealth - this.swordDamage)
+    this.attackHasHit = true
+    console.log(`Enemy Health: ${this.enemyHealth}`)
+    
+    if (this.enemyHealth === 0) {
+    this.enemy.destroy()
+}
+  }
+})
+
 }
 
   update() {
@@ -107,6 +132,29 @@ class GameScene extends Phaser.Scene {
     
    const dodgePressed =
     Phaser.Input.Keyboard.JustDown(this.keys.dodge)
+
+  const attackPressed =
+    Phaser.Input.Keyboard.JustDown(this.keys.attack)
+    
+  if (attackPressed && !this.isAttacking && !this.isDodging) {
+  this.isAttacking = true
+  this.attackHasHit = false
+
+  const swordX =
+    this.facing === 'right'
+      ? this.player.x + 45
+      : this.player.x - 45
+
+  this.swordHitbox.setPosition(swordX, this.player.y)
+  this.swordHitbox.setVisible(true)
+  this.swordHitbox.body.enable = true
+
+  this.time.delayedCall(250, () => {
+    this.isAttacking = false
+    this.swordHitbox.setVisible(false)
+    this.swordHitbox.body.enable = false
+  })
+}
    
     if (dodgePressed && !this.isDodging && this.canDodge) {
       this.isDodging = true
