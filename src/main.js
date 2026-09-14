@@ -7,11 +7,66 @@ class GameScene extends Phaser.Scene {
   }
 
   preload() {
-  this.load.image('playerIdle', 'src/assets/player/player-idle.png')
+  this.load.spritesheet(
+  'playerIdle',
+  'src/assets/player/player-idle.png',
+  {
+    frameWidth: 333,
+    frameHeight: 724
+  }
+)
+
+this.load.spritesheet(
+  'playerWalk',
+  'src/assets/player/player-walk.png',
+  {
+    frameWidth: 362,
+    frameHeight: 724
+  }
+)
+
+this.load.spritesheet(
+  'playerAttack',
+  'src/assets/player/player-attack.png',
+  {
+    frameWidth: 560,
+    frameHeight: 746
+  }
+)
+
+this.load.spritesheet(
+  'playerJump',
+  'src/assets/player/player-jump.png',
+  {
+    frameWidth: 543,
+    frameHeight: 724
+  }
+)
+
+this.load.spritesheet(
+  'playerDash',
+  'src/assets/player/player-dash.png',
+  {
+    frameWidth: 543,
+    frameHeight: 724
+  }
+)
+
+
+this.load.spritesheet(
+  'playerDeath',
+  'src/assets/player/player-death.png',
+  {
+    frameWidth: 362,
+    frameHeight: 724
+  }
+)
+
   this.load.image('mainBackground', 'src/assets/background/main-background.png')
   this.load.image('bridgeForeground', 'src/assets/environment/bridge-foreground.png')
   this.load.image('fire', 'src/assets/hazards/fire.png')
-
+  this.load.image('healthPotion', 'src/assets/pickups/health-potion.png')  
+  this.load.image('playerHud', 'src/assets/ui/player-hud.png')
   this.load.image('platformArt', 'src/assets/environment/platform.png')
   this.load.image('columnArt', 'src/assets/environment/column.png')
   this.load.image('bossFloorArt', 'src/assets/environment/boss-floor.png')
@@ -41,7 +96,18 @@ class GameScene extends Phaser.Scene {
   
   create() {
     
+    const walkImage = this.textures.get('playerWalk').getSourceImage()
+
+console.log(
+  'PLAYER WALK SIZE:',
+  walkImage.width,
+  walkImage.height
+)
+
     this.physics.world.setBounds(0, 0, 6000, 1400)
+    
+    // Keep camera inside the level
+    this.cameras.main.setBounds(0, 0, 6000, 1400)
     
 
     // Background
@@ -100,6 +166,48 @@ class GameScene extends Phaser.Scene {
     this.physics.add.existing(this.enemyBossBarrier, true)
     this.bossHealth = 1000
     
+// =====================
+// BOSS HEALTH BAR
+// =====================
+
+// Boss name
+this.bossNameText = this.add.text(
+  640,
+  545,
+  'WRAITH KNIGHT',
+  {
+    fontFamily: 'Georgia',
+    fontSize: '22px',
+    color: '#d6d0c4'
+  }
+)
+
+this.bossNameText.setOrigin(0.5)
+this.bossNameText.setScrollFactor(0)
+this.bossNameText.setDepth(102)
+this.bossNameText.setVisible(false)
+
+
+// Dark background behind boss health
+this.bossHealthBarBackground = this.add.rectangle(
+  240,
+  575,
+  800,
+  18,
+  0x111111
+)
+
+this.bossHealthBarBackground.setOrigin(0, 0)
+this.bossHealthBarBackground.setScrollFactor(0)
+this.bossHealthBarBackground.setDepth(101)
+this.bossHealthBarBackground.setVisible(false)
+
+
+// Boss health fill
+this.bossHealthBar = this.add.graphics()
+this.bossHealthBar.setScrollFactor(0)
+this.bossHealthBar.setDepth(102)
+this.bossHealthBar.setVisible(false)
     
     // =====================
 // MAIN LEVEL PLATFORMS
@@ -345,18 +453,104 @@ this.bossColumn3Right.setOrigin(0.5, 1)
 this.bossColumn3Right.setDisplaySize(50, 90)
 this.bossColumn3Right.setDepth(-1)
         
-        
+// =====================
+// PLAYER ANIMATIONS
+// =====================
+
+this.anims.create({
+  key: 'player-idle',
+  frames: this.anims.generateFrameNumbers('playerIdle', {
+    start: 0,
+    end: 0
+  }),
+  frameRate: 6,
+  repeat: -1
+})
+
+this.anims.create({
+  key: 'player-walk',
+  frames: this.anims.generateFrameNumbers('playerWalk', {
+    start: 0,
+    end: 7
+  }),
+  frameRate: 5,
+  repeat: -1
+})
+
+this.anims.create({
+  key: 'player-attack',
+  frames: this.anims.generateFrameNumbers('playerAttack', {
+    start: 0,
+    end: 3
+  }),
+  frameRate: 10,
+  repeat: 0
+})
+
+this.anims.create({
+  key: 'player-jump',
+  frames: this.anims.generateFrameNumbers('playerJump', {
+    start: 0,
+    end: 3
+  }),
+  frameRate: 6,
+  repeat: 0
+})
+
+this.anims.create({
+  key: 'player-dash',
+  frames: this.anims.generateFrameNumbers('playerDash', {
+    start: 0,
+    end: 3
+  }),
+  frameRate: 10,
+  repeat: 0
+})
+
+this.anims.create({
+  key: 'player-death',
+  frames: this.anims.generateFrameNumbers('playerDeath', {
+    start: 0,
+    end: 5
+  }),
+  frameRate: 6,
+  repeat: 0
+})
 
     // Player
-    this.player = this.add.image(200, 500, 'playerIdle')
+    this.player = this.add.sprite(200, 500, 'playerIdle')
+    this.playerBody = this.add.rectangle(
+    this.player.x,
+    this.player.y,
+    30,
+    60,
+    0xffffff,
+    0
+  )
+
+this.physics.add.existing(this.playerBody)
+
+this.playerBody.body.setCollideWorldBounds(true)
+
+// Temporary for this setup step so it doesn't fall through the map yet
+this.playerBody.body.setAllowGravity(false)
+    
+    
     this.player.setDisplaySize(80, 120)
-    this.player.setOrigin(0.5, 0.85)
+
+
+    
+    this.player.setOrigin(0.5, 0.75)
     this.physics.add.existing(this.player)
+    
     // Smaller player hurtbox
-    this.player.body.setSize(30, 60, true)
+     this.player.body.setSize(30, 60, true)
 
     this.player.body.setCollideWorldBounds(true)
-    this.cameras.main.startFollow(this.player)
+    this.player.play('player-idle')
+    this.cameraTarget = this.add.zone(this.player.x, this.player.y, 1, 1)
+    this.cameras.main.startFollow(this.cameraTarget, true, 0.1, 0.1)
+    this.cameras.main.setDeadzone(120, 80)
 
     // Player facing direction
     this.facing = 'right'
@@ -368,6 +562,7 @@ this.bossColumn3Right.setDepth(-1)
     this.stamina = 100
     this.canTakeDamage = true
     this.isDead = false
+    this.deathAnimationStarted = false
     this.isVictorious = false
     this.isAttacking = false
     this.swordDamage = 207
@@ -411,83 +606,146 @@ this.bossColumn3Right.setDepth(-1)
       attack: Phaser.Input.Keyboard.KeyCodes.W
     })
 
-    
-      
-    // Health Text
-    this.healthText = this.add.text(20, 60, 'Health: 1000', {
-        fontFamily: 'Arial',
-        fontSize: '24px',
-        color: '#ff0000'
-    }).setScrollFactor(0)
+// =====================
+// PLAYER HUD
+// =====================
 
-    // Stamina Text
-this.staminaText = this.add.text(20, 90, 'Stamina: 100', {
-  fontFamily: 'Arial',
-  fontSize: '24px',
-  color: '#00ff00'
-}).setScrollFactor(0)
+
+
+
+// =====================
+// HEALTH BAR
+// =====================
+
+
+
+// Inner dark background
+this.healthBarBackground = this.add.rectangle(
+  115,
+  59,
+  295,
+  17,
+  0x161616
+)
+this.healthBarBackground.setOrigin(0, 0)
+this.healthBarBackground.setScrollFactor(0)
+this.healthBarBackground.setDepth(101)
+
+// Glossy rounded health bar
+this.healthBar = this.add.graphics()
+this.healthBar.setScrollFactor(0)
+this.healthBar.setDepth(102)
+
+// HUD image frame
+this.playerHud = this.add.image(20, 15, 'playerHud')
+this.playerHud.setOrigin(0, 0)
+this.playerHud.setDisplaySize(420, 130)
+this.playerHud.setScrollFactor(0)
+this.playerHud.setDepth(103)
+
+// =====================
+// STAMINA BAR
+// =====================
+
+
+
+// Inner dark background
+this.staminaBarBackground = this.add.rectangle(
+  115,
+  87,
+  180,
+  13,
+  0x161616
+)
+
+this.staminaBarBackground.setOrigin(0, 0)
+this.staminaBarBackground.setScrollFactor(0)
+this.staminaBarBackground.setDepth(101)
+
+// Glossy rounded stamina bar
+this.staminaBar = this.add.graphics()
+this.staminaBar.setScrollFactor(0)
+this.staminaBar.setDepth(102)
+
+
+
+      
+
 
 // =====================
 // HEALTH PICKUPS
 // =====================
 
+
 // Pickup 1 - Ground
-this.healthPickup = this.add.rectangle(1400, 620, 30, 30, 0xff69b4)
+this.healthPickup = this.add.image(1400, 620, 'healthPotion')
+this.healthPickup.setDisplaySize(50, 50)
 this.physics.add.existing(this.healthPickup, true)
 
 
 // Pickup 2 - Platform 3
-this.healthPickup2 = this.add.rectangle(1300, 385, 30, 30, 0xff69b4)
+this.healthPickup2 = this.add.image(1300, 385, 'healthPotion')
+this.healthPickup2.setDisplaySize(50, 50)
 this.physics.add.existing(this.healthPickup2, true)
 
 
 // Pickup 3 - Platform 4
-this.healthPickup3 = this.add.rectangle(1800, 505, 30, 30, 0xff69b4)
+this.healthPickup3 = this.add.image(1800, 505, 'healthPotion')
+this.healthPickup3.setDisplaySize(50, 50)
 this.physics.add.existing(this.healthPickup3, true)
 
 
 // Pickup 4 - Platform 5
-this.healthPickup4 = this.add.rectangle(2100, 425, 30, 30, 0xff69b4)
+this.healthPickup4 = this.add.image(2100, 425, 'healthPotion')
+this.healthPickup4.setDisplaySize(50, 50)
 this.physics.add.existing(this.healthPickup4, true)
 
 
 // Pickup 5 - Platform 6
-this.healthPickup5 = this.add.rectangle(2400, 505, 30, 30, 0xff69b4)
+this.healthPickup5 = this.add.image(2400, 505, 'healthPotion')
+this.healthPickup5.setDisplaySize(50, 50)
 this.physics.add.existing(this.healthPickup5, true)
 
 
 // Pickup 6 - Platform 7
-this.healthPickup6 = this.add.rectangle(3100, 505, 30, 30, 0xff69b4)
+this.healthPickup6 = this.add.image(3100, 505, 'healthPotion')
+this.healthPickup6.setDisplaySize(50, 50)
 this.physics.add.existing(this.healthPickup6, true)
 
 
 // Pickup 7 - Platform 8
-this.healthPickup7 = this.add.rectangle(3400, 445, 30, 30, 0xff69b4)
+this.healthPickup7 = this.add.image(3400, 445, 'healthPotion')
+this.healthPickup7.setDisplaySize(50, 50)
 this.physics.add.existing(this.healthPickup7, true)
 
 
 // Pickup 8 - Platform 9
-this.healthPickup8 = this.add.rectangle(3700, 385, 30, 30, 0xff69b4)
+this.healthPickup8 = this.add.image(3700, 385, 'healthPotion')
+this.healthPickup8.setDisplaySize(50, 50)
 this.physics.add.existing(this.healthPickup8, true)
 
 
 // Pickup 9 - Platform 10
-this.healthPickup9 = this.add.rectangle(4500, 505, 30, 30, 0xff69b4)
+this.healthPickup9 = this.add.image(4500, 505, 'healthPotion')
+this.healthPickup9.setDisplaySize(50, 50)
 this.physics.add.existing(this.healthPickup9, true)
 
 
 // Pickup 10 - Boss Platform 1
-this.healthPickup10 = this.add.rectangle(4700, 1105, 30, 30, 0xff69b4)
+this.healthPickup10 = this.add.image(4700, 1105, 'healthPotion')
+this.healthPickup10.setDisplaySize(50, 50)
 this.physics.add.existing(this.healthPickup10, true)
 
 
 // Pickup 11 - Boss Platform 2
-this.healthPickup11 = this.add.rectangle(5200, 1025, 30, 30, 0xff69b4)
+this.healthPickup11 = this.add.image(5200, 1025, 'healthPotion')
+this.healthPickup11.setDisplaySize(50, 50)
 this.physics.add.existing(this.healthPickup11, true)
 
 
 // Pickup 12 - Boss Platform 3
-this.healthPickup12 = this.add.rectangle(5700, 1105, 30, 30, 0xff69b4)
+this.healthPickup12 = this.add.image(5700, 1105, 'healthPotion')
+this.healthPickup12.setDisplaySize(50, 50)
 this.physics.add.existing(this.healthPickup12, true)
 
 
@@ -511,7 +769,7 @@ healthPickups.forEach((pickup) => {
   this.physics.add.overlap(this.player, pickup, () => {
     if (pickup.active) {
       this.playerHealth = Math.min(1000, this.playerHealth + 100)
-      this.healthText.setText(`Health: ${this.playerHealth}`)
+      
       pickup.destroy()
     }
   })
@@ -554,7 +812,7 @@ hazards.forEach((hazard) => {
   this.physics.add.overlap(this.player, hazard, () => {
     if (this.canTakeDamage && !this.isInvulnerable) {
       this.playerHealth = Math.max(0, this.playerHealth - 25)
-      this.healthText.setText(`Health: ${this.playerHealth}`)
+      
 
       if (this.playerHealth === 0) {
         this.isDead = true
@@ -568,7 +826,7 @@ hazards.forEach((hazard) => {
 
       this.canTakeDamage = false
 
-      this.time.delayedCall(500, () => {
+      this.time.delayedCall(650, () => {
         this.canTakeDamage = true
       })
     }
@@ -584,7 +842,7 @@ this.enemyAggro = false
 this.physics.add.overlap(this.player, this.enemy, () => {
   if (this.canTakeDamage && !this.isInvulnerable) {
     this.playerHealth = Math.max(0, this.playerHealth - 50)
-    this.healthText.setText(`Health: ${this.playerHealth}`)
+    
     if (this.playerHealth === 0) {
   this.isDead = true
   this.enemy.body.setVelocityX(0)
@@ -623,7 +881,7 @@ this.enemy2Aggro = false
 this.physics.add.overlap(this.player, this.enemy2, () => {
   if (this.canTakeDamage && !this.isInvulnerable) {
     this.playerHealth = Math.max(0, this.playerHealth - 50)
-    this.healthText.setText(`Health: ${this.playerHealth}`)
+    
 
     if (this.playerHealth === 0) {
       this.isDead = true
@@ -666,7 +924,7 @@ this.enemy3Aggro = false
 this.physics.add.overlap(this.player, this.enemy3, () => {
   if (this.canTakeDamage && !this.isInvulnerable) {
     this.playerHealth = Math.max(0, this.playerHealth - 75)
-    this.healthText.setText(`Health: ${this.playerHealth}`)
+    
 
     if (this.playerHealth === 0) {
       this.isDead = true
@@ -710,7 +968,7 @@ this.enemy4Aggro = false
 this.physics.add.overlap(this.player, this.enemy4, () => {
   if (this.canTakeDamage && !this.isInvulnerable) {
     this.playerHealth = Math.max(0, this.playerHealth - 50)
-    this.healthText.setText(`Health: ${this.playerHealth}`)
+    
 
     if (this.playerHealth === 0) {
       this.isDead = true
@@ -753,7 +1011,7 @@ this.enemy5Aggro = false
 this.physics.add.overlap(this.player, this.enemy5, () => {
   if (this.canTakeDamage && !this.isInvulnerable) {
     this.playerHealth = Math.max(0, this.playerHealth - 75)
-    this.healthText.setText(`Health: ${this.playerHealth}`)
+    
 
     if (this.playerHealth === 0) {
       this.isDead = true
@@ -796,7 +1054,7 @@ this.enemy6Aggro = false
 this.physics.add.overlap(this.player, this.enemy6, () => {
   if (this.canTakeDamage && !this.isInvulnerable) {
     this.playerHealth = Math.max(0, this.playerHealth - 100)
-    this.healthText.setText(`Health: ${this.playerHealth}`)
+    
 
     if (this.playerHealth === 0) {
       this.isDead = true
@@ -840,7 +1098,7 @@ this.enemy7Aggro = false
 this.physics.add.overlap(this.player, this.enemy7, () => {
   if (this.canTakeDamage && !this.isInvulnerable) {
     this.playerHealth = Math.max(0, this.playerHealth - 100)
-    this.healthText.setText(`Health: ${this.playerHealth}`)
+    
 
     if (this.playerHealth === 0) {
       this.isDead = true
@@ -893,6 +1151,9 @@ this.physics.add.overlap(this.swordHitbox, this.boss, () => {
     if (this.bossHealth === 0) {
   this.boss.destroy()
   this.isVictorious = true
+  this.bossNameText.setVisible(false)
+  this.bossHealthBarBackground.setVisible(false)
+  this.bossHealthBar.setVisible(false)
 
   this.add.text(640, 260, 'SOUL RESTORED', {
     fontFamily: 'Arial',
@@ -918,7 +1179,7 @@ this.physics.add.overlap(this.swordHitbox, this.boss, () => {
 this.physics.add.overlap(this.player, this.boss, () => {
   if (this.canTakeDamage && !this.isInvulnerable) {
     this.playerHealth = Math.max(0, this.playerHealth - 75)
-    this.healthText.setText(`Health: ${this.playerHealth}`)
+    
     if (this.playerHealth === 0) {
   this.isDead = true
   this.boss.body.setVelocityX(0)
@@ -943,15 +1204,30 @@ this.physics.add.overlap(this.player, this.boss, () => {
 
   update() {
   
+    this.playerBody.setPosition(
+    this.player.x,
+    this.player.y
+  )
+
+
+  this.cameraTarget.setPosition(
+  this.player.body.center.x,
+  this.player.body.center.y
+)
+
   if (this.isDead) {
   this.player.body.setVelocity(0, 0)
+
+  if (!this.deathAnimationStarted) {
+    this.deathAnimationStarted = true
+    this.player.play('player-death')
+  }
 
   if (Phaser.Input.Keyboard.JustDown(this.keys.restart)) {
     this.scene.restart()
   }
 
   return
-
 }
 
  if (this.isVictorious) {
@@ -983,8 +1259,11 @@ this.physics.add.overlap(this.player, this.boss, () => {
     
   if (attackPressed && !this.isAttacking && !this.isDodging && this.stamina >= 20) {
   this.isAttacking = true
+  this.player.play('player-attack', true)
+  this.player.setDisplaySize(80, 120)
+  this.player.body.setSize(30, 60, true)
   this.stamina -= 20
-  this.staminaText.setText(`Stamina: ${this.stamina}`)
+  
   this.attackHasHit = false
 
   const swordX =
@@ -994,9 +1273,10 @@ this.physics.add.overlap(this.player, this.boss, () => {
 
 this.swordHitbox.body.enable = true
 this.swordHitbox.body.reset(swordX, this.player.y)
-this.swordHitbox.setVisible(true)
+this.swordHitbox.setVisible(false)
 
   this.time.delayedCall(250, () => {
+    
     this.isAttacking = false
     this.swordHitbox.setVisible(false)
     this.swordHitbox.body.enable = false
@@ -1005,8 +1285,10 @@ this.swordHitbox.setVisible(true)
    
     if (dodgePressed && !this.isDodging && this.canDodge && this.stamina >= 30) {
       this.isDodging = true
+      this.player.play('player-dash', true)
+      this.player.body.setSize(30, 60, true)
       this.stamina -= 30
-      this.staminaText.setText(`Stamina: ${this.stamina}`)
+      
       this.canDodge = false
       this.isInvulnerable = true
       this.player.body.setVelocityX(this.facing === 'right' ? 650 : -650)
@@ -1032,17 +1314,35 @@ if (!this.isDodging) {
     this.player.body.velocity.x -= acceleration
     this.facing = 'left'
     this.player.setFlipX(true)
+
+    if (this.player.body.blocked.down && !this.isAttacking) {
+      this.player.play('player-walk', true)
+      //this.player.setDisplaySize(95, 140)
+    }
+
   } else if (movingRight) {
     this.player.body.velocity.x += acceleration
     this.facing = 'right'
     this.player.setFlipX(false)
+
+    if (this.player.body.blocked.down && !this.isAttacking) {
+      this.player.play('player-walk', true)
+      //this.player.setDisplaySize(95, 140)
+    }
+
   } else {
+    if (this.player.body.blocked.down && !this.isAttacking) {
+      this.player.play('player-idle', true)
+      //this.player.setDisplaySize(80, 120)
+    }
+
     if (this.player.body.velocity.x > 0) {
       this.player.body.velocity.x -= drag
 
       if (this.player.body.velocity.x < 0) {
         this.player.body.velocity.x = 0
       }
+
     } else if (this.player.body.velocity.x < 0) {
       this.player.body.velocity.x += drag
 
@@ -1070,6 +1370,10 @@ const jumpHeld =
 
 if (jumpPressed && this.player.body.blocked.down) {
   this.player.body.setVelocityY(-600)
+
+  if (!this.isAttacking) {
+    this.player.play('player-jump', true)
+  }
 }
 
 // If the player releases jump early while still moving upward,
@@ -1225,7 +1529,12 @@ if (this.enemy7.active) {
 
 
 
-
+// Show boss HUD when player enters boss arena
+if (this.player.y > 900 && this.boss.active) {
+  this.bossNameText.setVisible(true)
+  this.bossHealthBarBackground.setVisible(true)
+  this.bossHealthBar.setVisible(true)
+}
 
 
 
@@ -1241,9 +1550,90 @@ if (this.boss.active && this.player.y > 900) {
 // Stamina regeneration
 if (this.stamina < this.maxStamina) {
   this.stamina = Math.min(this.maxStamina, this.stamina + 0.5)
-  this.staminaText.setText(`Stamina: ${Math.floor(this.stamina)}`)
-}
   
+}
+  // Update health bar
+const healthPercent = this.playerHealth / 1000
+const healthWidth = 295 * healthPercent
+
+this.healthBar.clear()
+
+// Main rounded red fill
+this.healthBar.fillStyle(0x8b1515, 1)
+this.healthBar.fillRoundedRect(
+  115,
+  59,
+  healthWidth,
+  17,
+  8
+)
+
+// Glossy highlight
+this.healthBar.fillStyle(0xffffff, 0.22)
+this.healthBar.fillRoundedRect(
+  117,
+  61,
+  Math.max(0, healthWidth - 4),
+  5,
+  3
+)
+
+const staminaPercent = this.stamina / this.maxStamina
+const staminaWidth = 180 * staminaPercent
+
+this.staminaBar.clear()
+
+// Main rounded green fill
+this.staminaBar.fillStyle(0x2f7f3f, 1)
+this.staminaBar.fillRoundedRect(
+  115,
+  87,
+  staminaWidth,
+  13,
+  6
+)
+
+// Glossy highlight
+this.staminaBar.fillStyle(0xffffff, 0.22)
+this.staminaBar.fillRoundedRect(
+  117,
+  89,
+  Math.max(0, staminaWidth - 4),
+  4,
+  2
+)
+
+ // Update boss health bar
+if (this.boss.active && this.player.y > 900) {
+
+  const bossHealthPercent = this.bossHealth / 1000
+  const bossHealthWidth = 800 * bossHealthPercent
+
+  this.bossHealthBar.clear()
+
+  // Main red fill
+  this.bossHealthBar.fillStyle(0x8b1515, 1)
+
+  this.bossHealthBar.fillRoundedRect(
+    240,
+    575,
+    bossHealthWidth,
+    18,
+    9
+  )
+
+  // Glossy highlight
+  this.bossHealthBar.fillStyle(0xffffff, 0.20)
+
+  this.bossHealthBar.fillRoundedRect(
+    243,
+    578,
+    Math.max(0, bossHealthWidth - 6),
+    5,
+    3
+  )
+}
+
   }
 }
 
@@ -1252,6 +1642,11 @@ const config = {
   width: 1280,
   height: 720,
   backgroundColor: '#111111',
+
+   scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH
+  },
 
   physics: {
     default: 'arcade',
