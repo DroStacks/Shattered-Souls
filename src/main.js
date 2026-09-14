@@ -6,21 +6,95 @@ class GameScene extends Phaser.Scene {
     super('GameScene')
   }
 
+  preload() {
+  this.load.image('playerIdle', 'src/assets/player/player-idle.png')
+  this.load.image('mainBackground', 'src/assets/background/main-background.png')
+  this.load.image('bridgeForeground', 'src/assets/environment/bridge-foreground.png')
+  this.load.image('fire', 'src/assets/hazards/fire.png')
+
+  this.load.image('platformArt', 'src/assets/environment/platform.png')
+  this.load.image('columnArt', 'src/assets/environment/column.png')
+  this.load.image('bossFloorArt', 'src/assets/environment/boss-floor.png')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+  
   create() {
     
     this.physics.world.setBounds(0, 0, 6000, 1400)
     
+
+    // Background
+    this.background = this.add.image(0, 0, 'mainBackground')
+    this.background.setOrigin(0, 0)
+    this.background.setDisplaySize(6000, 1400)
+    this.background.setDepth(-10)
+    // Main bridge artwork
+    this.bridgeForeground = this.add.image(2600, 300, 'bridgeForeground')
+    this.bridgeForeground.setDisplaySize(5200, 700)
+    this.bridgeForeground.setOrigin(0.5, 0)
+    this.bridgeForeground.setDepth(-5)
+
     // Ground
-    this.ground = this.add.rectangle(2600, 680, 5200, 80, 0x444444)
+    this.ground = this.add.rectangle(2600, 665, 5200, 80, 0x444444)
     this.physics.add.existing(this.ground, true)
+    this.ground.setVisible(false)
+
+    // Separate enemy ground so enemy feet align with bridge artwork
+    this.enemyGround = this.add.rectangle(2600, 725, 5200, 80, 0x444444)
+    this.physics.add.existing(this.enemyGround, true)
+    this.enemyGround.setVisible(false)
     
-    // Boss arena floor
-    this.bossFloor = this.add.rectangle(5200, 1260, 1600, 80, 0x444444)
-    this.physics.add.existing(this.bossFloor, true)
+    
+    
+  // =====================
+  // BOSS ARENA FLOOR
+  // =====================
+
+  // Player collision floor
+  // Slightly higher so the knight's feet sit on the visible stone surface
+  this.bossFloor = this.add.rectangle(5200, 1195, 1600, 80, 0x444444)
+  this.physics.add.existing(this.bossFloor, true)
+  this.bossFloor.setVisible(false)
+
+  // Separate boss collision floor
+  // Slightly lower so the boss sits correctly on the stone
+  this.bossGround = this.add.rectangle(5200, 1245, 1600, 80, 0x444444)
+  this.physics.add.existing(this.bossGround, true)
+  this.bossGround.setVisible(false)
+
+  // Boss floor artwork
+  this.bossFloorArt = this.add.image(5200, 1000, 'bossFloorArt')
+  this.bossFloorArt.setDisplaySize(1600, 400)
+  this.bossFloorArt.setOrigin(0.5, 0)
+  this.bossFloorArt.setDepth(-2)
+        
+    // Boss
     this.boss = this.add.rectangle(4800, 1100, 100, 160, 0x800080)
     this.physics.add.existing(this.boss)
     this.boss.body.setCollideWorldBounds(true)
-    this.physics.add.collider(this.boss, this.bossFloor)
+    this.physics.add.collider(this.boss, this.bossGround)
+    
     // Invisible barrier that blocks regular enemies from entering boss arena
     this.enemyBossBarrier = this.add.rectangle(5150, 340, 40, 680, 0xff0000, 0)
     this.physics.add.existing(this.enemyBossBarrier, true)
@@ -32,59 +106,251 @@ class GameScene extends Phaser.Scene {
 // =====================
 
 // Cluster 1
-this.platform = this.add.rectangle(700, 560, 220, 30, 0x666666)
+this.platform = this.add.rectangle(700, 518, 220, 30, 0x666666)
 this.physics.add.existing(this.platform, true)
+this.platform.setVisible(false)
+this.platformArt1 = this.add.image(700, 560, 'platformArt')
+this.platformArt1.setDisplaySize(220, 70)
+// Left column
+this.columnArt1Left = this.add.image(615, 610, 'columnArt')
+this.columnArt1Left.setDisplaySize(50, 140)
+this.columnArt1Left.setDepth(-1)
 
-this.platform2 = this.add.rectangle(1000, 500, 220, 30, 0x666666)
+// Right column
+this.columnArt1Right = this.add.image(785, 610, 'columnArt')
+this.columnArt1Right.setDisplaySize(50, 140)
+this.columnArt1Right.setDepth(-1)
+
+// Platform 2
+this.platform2 = this.add.rectangle(1000, 458, 220, 30, 0x666666)
 this.physics.add.existing(this.platform2, true)
+this.platform2.setVisible(false)
 
-this.platform3 = this.add.rectangle(1300, 440, 220, 30, 0x666666)
+this.platformArt2 = this.add.image(1000, 500, 'platformArt')
+this.platformArt2.setDisplaySize(220, 70)
+
+this.columnArt2Left = this.add.image(915, 580, 'columnArt')
+this.columnArt2Left.setDisplaySize(50, 200)
+this.columnArt2Left.setDepth(-1)
+
+this.columnArt2Right = this.add.image(1085, 580, 'columnArt')
+this.columnArt2Right.setDisplaySize(50, 200)
+this.columnArt2Right.setDepth(-1)
+
+
+// Platform 3
+this.platform3 = this.add.rectangle(1300, 398, 220, 30, 0x666666)
 this.physics.add.existing(this.platform3, true)
+this.platform3.setVisible(false)
+
+this.platformArt3 = this.add.image(1300, 440, 'platformArt')
+this.platformArt3.setDisplaySize(220, 70)
+
+this.columnArt3Left = this.add.image(1215, 550, 'columnArt')
+this.columnArt3Left.setDisplaySize(50, 260)
+this.columnArt3Left.setDepth(-1)
+
+this.columnArt3Right = this.add.image(1385, 550, 'columnArt')
+this.columnArt3Right.setDisplaySize(50, 260)
+this.columnArt3Right.setDepth(-1)
 
 
-// Cluster 2
-this.platform4 = this.add.rectangle(1800, 540, 250, 30, 0x666666)
+// =====================
+// CLUSTER 2
+// =====================
+
+// Platform 4
+this.platform4 = this.add.rectangle(1800, 518, 250, 30, 0x666666)
 this.physics.add.existing(this.platform4, true)
+this.platform4.setVisible(false)
 
-this.platform5 = this.add.rectangle(2100, 480, 250, 30, 0x666666)
+this.platformArt4 = this.add.image(1800, 560, 'platformArt')
+this.platformArt4.setDisplaySize(250, 70)
+
+this.columnArt4Left = this.add.image(1705, 610, 'columnArt')
+this.columnArt4Left.setDisplaySize(50, 140)
+this.columnArt4Left.setDepth(-1)
+
+this.columnArt4Right = this.add.image(1895, 610, 'columnArt')
+this.columnArt4Right.setDisplaySize(50, 140)
+this.columnArt4Right.setDepth(-1)
+
+
+// Platform 5
+this.platform5 = this.add.rectangle(2100, 438, 250, 30, 0x666666)
 this.physics.add.existing(this.platform5, true)
+this.platform5.setVisible(false)
 
-this.platform6 = this.add.rectangle(2400, 540, 250, 30, 0x666666)
+this.platformArt5 = this.add.image(2100, 480, 'platformArt')
+this.platformArt5.setDisplaySize(250, 70)
+
+this.columnArt5Left = this.add.image(2005, 570, 'columnArt')
+this.columnArt5Left.setDisplaySize(50, 220)
+this.columnArt5Left.setDepth(-1)
+
+this.columnArt5Right = this.add.image(2195, 570, 'columnArt')
+this.columnArt5Right.setDisplaySize(50, 220)
+this.columnArt5Right.setDepth(-1)
+
+
+// Platform 6
+this.platform6 = this.add.rectangle(2400, 518, 250, 30, 0x666666)
 this.physics.add.existing(this.platform6, true)
+this.platform6.setVisible(false)
+
+this.platformArt6 = this.add.image(2400, 560, 'platformArt')
+this.platformArt6.setDisplaySize(250, 70)
+
+this.columnArt6Left = this.add.image(2305, 610, 'columnArt')
+this.columnArt6Left.setDisplaySize(50, 140)
+this.columnArt6Left.setDepth(-1)
+
+this.columnArt6Right = this.add.image(2495, 610, 'columnArt')
+this.columnArt6Right.setDisplaySize(50, 140)
+this.columnArt6Right.setDepth(-1)
 
 
-// Cluster 3
-this.platform7 = this.add.rectangle(3100, 560, 250, 30, 0x666666)
+// =====================
+// CLUSTER 3
+// =====================
+
+// Platform 7
+this.platform7 = this.add.rectangle(3100, 518, 250, 30, 0x666666)
 this.physics.add.existing(this.platform7, true)
+this.platform7.setVisible(false)
 
-this.platform8 = this.add.rectangle(3400, 500, 250, 30, 0x666666)
+this.platformArt7 = this.add.image(3100, 560, 'platformArt')
+this.platformArt7.setDisplaySize(250, 70)
+
+this.columnArt7Left = this.add.image(3005, 610, 'columnArt')
+this.columnArt7Left.setDisplaySize(50, 140)
+this.columnArt7Left.setDepth(-1)
+
+this.columnArt7Right = this.add.image(3195, 610, 'columnArt')
+this.columnArt7Right.setDisplaySize(50, 140)
+this.columnArt7Right.setDepth(-1)
+
+
+// Platform 8
+this.platform8 = this.add.rectangle(3400, 458, 250, 30, 0x666666)
 this.physics.add.existing(this.platform8, true)
+this.platform8.setVisible(false)
 
-this.platform9 = this.add.rectangle(3700, 440, 250, 30, 0x666666)
+this.platformArt8 = this.add.image(3400, 500, 'platformArt')
+this.platformArt8.setDisplaySize(250, 70)
+
+this.columnArt8Left = this.add.image(3305, 580, 'columnArt')
+this.columnArt8Left.setDisplaySize(50, 200)
+this.columnArt8Left.setDepth(-1)
+
+this.columnArt8Right = this.add.image(3495, 580, 'columnArt')
+this.columnArt8Right.setDisplaySize(50, 200)
+this.columnArt8Right.setDepth(-1)
+
+
+// Platform 9
+this.platform9 = this.add.rectangle(3700, 398, 250, 30, 0x666666)
 this.physics.add.existing(this.platform9, true)
+this.platform9.setVisible(false)
+
+this.platformArt9 = this.add.image(3700, 440, 'platformArt')
+this.platformArt9.setDisplaySize(250, 70)
+
+this.columnArt9Left = this.add.image(3605, 550, 'columnArt')
+this.columnArt9Left.setDisplaySize(50, 260)
+this.columnArt9Left.setDepth(-1)
+
+this.columnArt9Right = this.add.image(3795, 550, 'columnArt')
+this.columnArt9Right.setDisplaySize(50, 260)
+this.columnArt9Right.setDepth(-1)
 
 
-// Final platform near boss entrance
-this.platform10 = this.add.rectangle(4500, 520, 250, 30, 0x666666)
+// =====================
+// FINAL PLATFORM
+// =====================
+
+this.platform10 = this.add.rectangle(4500, 518, 250, 30, 0x666666)
 this.physics.add.existing(this.platform10, true)
+this.platform10.setVisible(false)
 
-    // Boss Arena Platform 1
-        this.bossPlatform1 = this.add.rectangle(4700, 1100, 250, 30, 0x666666)
-        this.physics.add.existing(this.bossPlatform1, true)
+this.platformArt10 = this.add.image(4500, 560, 'platformArt')
+this.platformArt10.setDisplaySize(250, 70)
 
-    // Boss Arena Platform 2
-        this.bossPlatform2 = this.add.rectangle(5200, 980, 250, 30, 0x666666)
-        this.physics.add.existing(this.bossPlatform2, true)
+this.columnArt10Left = this.add.image(4405, 610, 'columnArt')
+this.columnArt10Left.setDisplaySize(50, 140)
+this.columnArt10Left.setDepth(-1)
 
-    // Boss Arena Platform 3
-        this.bossPlatform3 = this.add.rectangle(5700, 1100, 250, 30, 0x666666)
-        this.physics.add.existing(this.bossPlatform3, true)
-        
+this.columnArt10Right = this.add.image(4595, 610, 'columnArt')
+this.columnArt10Right.setDisplaySize(50, 140)
+this.columnArt10Right.setDepth(-1)
+
+
+// =====================
+// BOSS ARENA PLATFORMS
+// =====================
+
+// Boss Platform 1 - Left
+this.bossPlatform1 = this.add.rectangle(4700, 1118, 250, 30, 0x666666)
+this.physics.add.existing(this.bossPlatform1, true)
+this.bossPlatform1.setVisible(false)
+
+this.bossPlatformArt1 = this.add.image(4700, 1160, 'platformArt')
+this.bossPlatformArt1.setDisplaySize(250, 70)
+
+this.bossColumn1Left = this.add.image(4605, 1220, 'columnArt')
+this.bossColumn1Left.setOrigin(0.5, 1)
+this.bossColumn1Left.setDisplaySize(50, 90)
+this.bossColumn1Left.setDepth(-1)
+
+this.bossColumn1Right = this.add.image(4795, 1220, 'columnArt')
+this.bossColumn1Right.setOrigin(0.5, 1)
+this.bossColumn1Right.setDisplaySize(50, 90)
+this.bossColumn1Right.setDepth(-1)
+
+
+// Boss Platform 2 - Center / Higher
+this.bossPlatform2 = this.add.rectangle(5200, 1038, 250, 30, 0x666666)
+this.physics.add.existing(this.bossPlatform2, true)
+this.bossPlatform2.setVisible(false)
+
+this.bossPlatformArt2 = this.add.image(5200, 1080, 'platformArt')
+this.bossPlatformArt2.setDisplaySize(250, 70)
+
+this.bossColumn2Left = this.add.image(5105, 1220, 'columnArt')
+this.bossColumn2Left.setOrigin(0.5, 1)
+this.bossColumn2Left.setDisplaySize(50, 170)
+this.bossColumn2Left.setDepth(-1)
+
+this.bossColumn2Right = this.add.image(5295, 1220, 'columnArt')
+this.bossColumn2Right.setOrigin(0.5, 1)
+this.bossColumn2Right.setDisplaySize(50, 170)
+this.bossColumn2Right.setDepth(-1)
+
+
+// Boss Platform 3 - Right
+this.bossPlatform3 = this.add.rectangle(5700, 1118, 250, 30, 0x666666)
+this.physics.add.existing(this.bossPlatform3, true)
+this.bossPlatform3.setVisible(false)
+
+this.bossPlatformArt3 = this.add.image(5700, 1160, 'platformArt')
+this.bossPlatformArt3.setDisplaySize(250, 70)
+
+this.bossColumn3Left = this.add.image(5605, 1220, 'columnArt')
+this.bossColumn3Left.setOrigin(0.5, 1)
+this.bossColumn3Left.setDisplaySize(50, 90)
+this.bossColumn3Left.setDepth(-1)
+
+this.bossColumn3Right = this.add.image(5795, 1220, 'columnArt')
+this.bossColumn3Right.setOrigin(0.5, 1)
+this.bossColumn3Right.setDisplaySize(50, 90)
+this.bossColumn3Right.setDepth(-1)
         
         
 
     // Player
-    this.player = this.add.rectangle(200, 500, 50, 80, 0xffffff)
+    this.player = this.add.image(200, 500, 'playerIdle')
+    this.player.setDisplaySize(80, 120)
+    this.player.setOrigin(0.5, 0.85)
     this.physics.add.existing(this.player)
     // Smaller player hurtbox
     this.player.body.setSize(30, 60, true)
@@ -161,7 +427,7 @@ this.staminaText = this.add.text(20, 90, 'Stamina: 100', {
   color: '#00ff00'
 }).setScrollFactor(0)
 
-    // =====================
+// =====================
 // HEALTH PICKUPS
 // =====================
 
@@ -169,48 +435,59 @@ this.staminaText = this.add.text(20, 90, 'Stamina: 100', {
 this.healthPickup = this.add.rectangle(1400, 620, 30, 30, 0xff69b4)
 this.physics.add.existing(this.healthPickup, true)
 
+
 // Pickup 2 - Platform 3
-this.healthPickup2 = this.add.rectangle(1300, 400, 30, 30, 0xff69b4)
+this.healthPickup2 = this.add.rectangle(1300, 385, 30, 30, 0xff69b4)
 this.physics.add.existing(this.healthPickup2, true)
 
+
 // Pickup 3 - Platform 4
-this.healthPickup3 = this.add.rectangle(1800, 500, 30, 30, 0xff69b4)
+this.healthPickup3 = this.add.rectangle(1800, 505, 30, 30, 0xff69b4)
 this.physics.add.existing(this.healthPickup3, true)
 
+
 // Pickup 4 - Platform 5
-this.healthPickup4 = this.add.rectangle(2100, 440, 30, 30, 0xff69b4)
+this.healthPickup4 = this.add.rectangle(2100, 425, 30, 30, 0xff69b4)
 this.physics.add.existing(this.healthPickup4, true)
 
+
 // Pickup 5 - Platform 6
-this.healthPickup5 = this.add.rectangle(2400, 500, 30, 30, 0xff69b4)
+this.healthPickup5 = this.add.rectangle(2400, 505, 30, 30, 0xff69b4)
 this.physics.add.existing(this.healthPickup5, true)
 
+
 // Pickup 6 - Platform 7
-this.healthPickup6 = this.add.rectangle(3100, 520, 30, 30, 0xff69b4)
+this.healthPickup6 = this.add.rectangle(3100, 505, 30, 30, 0xff69b4)
 this.physics.add.existing(this.healthPickup6, true)
 
+
 // Pickup 7 - Platform 8
-this.healthPickup7 = this.add.rectangle(3400, 460, 30, 30, 0xff69b4)
+this.healthPickup7 = this.add.rectangle(3400, 445, 30, 30, 0xff69b4)
 this.physics.add.existing(this.healthPickup7, true)
 
+
 // Pickup 8 - Platform 9
-this.healthPickup8 = this.add.rectangle(3700, 400, 30, 30, 0xff69b4)
+this.healthPickup8 = this.add.rectangle(3700, 385, 30, 30, 0xff69b4)
 this.physics.add.existing(this.healthPickup8, true)
 
+
 // Pickup 9 - Platform 10
-this.healthPickup9 = this.add.rectangle(4500, 480, 30, 30, 0xff69b4)
+this.healthPickup9 = this.add.rectangle(4500, 505, 30, 30, 0xff69b4)
 this.physics.add.existing(this.healthPickup9, true)
 
+
 // Pickup 10 - Boss Platform 1
-this.healthPickup10 = this.add.rectangle(4700, 1060, 30, 30, 0xff69b4)
+this.healthPickup10 = this.add.rectangle(4700, 1105, 30, 30, 0xff69b4)
 this.physics.add.existing(this.healthPickup10, true)
 
+
 // Pickup 11 - Boss Platform 2
-this.healthPickup11 = this.add.rectangle(5200, 940, 30, 30, 0xff69b4)
+this.healthPickup11 = this.add.rectangle(5200, 1025, 30, 30, 0xff69b4)
 this.physics.add.existing(this.healthPickup11, true)
 
+
 // Pickup 12 - Boss Platform 3
-this.healthPickup12 = this.add.rectangle(5700, 1060, 30, 30, 0xff69b4)
+this.healthPickup12 = this.add.rectangle(5700, 1105, 30, 30, 0xff69b4)
 this.physics.add.existing(this.healthPickup12, true)
 
 
@@ -242,24 +519,28 @@ healthPickups.forEach((pickup) => {
 
 
 
-    // =====================
+// =====================
 // FIRE HAZARDS
 // =====================
 
 // Hazard 1
-this.hazard = this.add.rectangle(800, 620, 80, 80, 0xff0000)
+this.hazard = this.add.image(800, 635, 'fire')
+this.hazard.setDisplaySize(100, 100)
 this.physics.add.existing(this.hazard, true)
 
 // Hazard 2
-this.hazard2 = this.add.rectangle(1900, 620, 80, 80, 0xff0000)
+this.hazard2 = this.add.image(1900, 635, 'fire')
+this.hazard2.setDisplaySize(100, 100)
 this.physics.add.existing(this.hazard2, true)
 
 // Hazard 3
-this.hazard3 = this.add.rectangle(3300, 620, 80, 80, 0xff0000)
+this.hazard3 = this.add.image(3300, 635, 'fire')
+this.hazard3.setDisplaySize(100, 100)
 this.physics.add.existing(this.hazard3, true)
 
 // Hazard 4
-this.hazard4 = this.add.rectangle(4300, 620, 80, 80, 0xff0000)
+this.hazard4 = this.add.image(4300, 635, 'fire')
+this.hazard4.setDisplaySize(100, 100)
 this.physics.add.existing(this.hazard4, true)
 
 const hazards = [
@@ -295,9 +576,9 @@ hazards.forEach((hazard) => {
 })
  
 // Enemy collision and health management
-this.enemy = this.add.rectangle(1000, 580, 50, 80, 0x00ff00)
+this.enemy = this.add.rectangle(1000, 585, 50, 80, 0x00ff00)
 this.physics.add.existing(this.enemy)
-this.physics.add.collider(this.enemy, this.ground)
+this.physics.add.collider(this.enemy, this.enemyGround)
 this.enemyHealth = 300
 this.enemyAggro = false
 this.physics.add.overlap(this.player, this.enemy, () => {
@@ -334,9 +615,9 @@ this.physics.add.overlap(this.swordHitbox, this.enemy, () => {
 })
 
 // Second Enemy collision and health management
-this.enemy2 = this.add.rectangle(1900, 580, 50, 80, 0x00ff00)
+this.enemy2 = this.add.rectangle(1900, 585, 50, 80, 0x00ff00)
 this.physics.add.existing(this.enemy2)
-this.physics.add.collider(this.enemy2, this.ground)
+this.physics.add.collider(this.enemy2, this.enemyGround)
 this.enemy2Health = 450
 this.enemy2Aggro = false
 this.physics.add.overlap(this.player, this.enemy2, () => {
@@ -376,9 +657,9 @@ this.physics.add.overlap(this.swordHitbox, this.enemy2, () => {
 })
 
 // Enemy 3 collision and health management
-this.enemy3 = this.add.rectangle(2500, 580, 50, 80, 0x00ff00)
+this.enemy3 = this.add.rectangle(2500, 585, 50, 80, 0x00ff00)
 this.physics.add.existing(this.enemy3)
-this.physics.add.collider(this.enemy3, this.ground)
+this.physics.add.collider(this.enemy3, this.enemyGround)
 this.enemy3Health = 600
 this.enemy3Aggro = false
 
@@ -420,9 +701,9 @@ this.physics.add.overlap(this.swordHitbox, this.enemy3, () => {
 // End of Enemy 3 collision and health management
 
 // Enemy 4
-this.enemy4 = this.add.rectangle(3100, 580, 50, 80, 0x00bfff)
+this.enemy4 = this.add.rectangle(3100, 585, 50, 80, 0x00bfff)
 this.physics.add.existing(this.enemy4)
-this.physics.add.collider(this.enemy4, this.ground)
+this.physics.add.collider(this.enemy4, this.enemyGround)
 this.enemy4Health = 450
 this.enemy4Aggro = false
 
@@ -466,7 +747,7 @@ this.physics.add.overlap(this.swordHitbox, this.enemy4, () => {
 // Enemy 5
 this.enemy5 = this.add.rectangle(3600, 575, 60, 90, 0xffa500)
 this.physics.add.existing(this.enemy5)
-this.physics.add.collider(this.enemy5, this.ground)
+this.physics.add.collider(this.enemy5, this.enemyGround)
 this.enemy5Health = 600
 this.enemy5Aggro = false
 this.physics.add.overlap(this.player, this.enemy5, () => {
@@ -509,7 +790,7 @@ this.physics.add.overlap(this.swordHitbox, this.enemy5, () => {
 // Enemy 6
 this.enemy6 = this.add.rectangle(4100, 590, 45, 70, 0xff00ff)
 this.physics.add.existing(this.enemy6)
-this.physics.add.collider(this.enemy6, this.ground)
+this.physics.add.collider(this.enemy6, this.enemyGround)
 this.enemy6Health = 300
 this.enemy6Aggro = false
 this.physics.add.overlap(this.player, this.enemy6, () => {
@@ -552,7 +833,7 @@ this.physics.add.overlap(this.swordHitbox, this.enemy6, () => {
 // Enemy 7
 this.enemy7 = this.add.rectangle(4600, 575, 70, 100, 0xff4500)
 this.physics.add.existing(this.enemy7)
-this.physics.add.collider(this.enemy7, this.ground)
+this.physics.add.collider(this.enemy7, this.enemyGround)
 this.enemy7Health = 750
 this.enemy7Aggro = false
 
@@ -750,9 +1031,11 @@ if (!this.isDodging) {
   if (movingLeft) {
     this.player.body.velocity.x -= acceleration
     this.facing = 'left'
+    this.player.setFlipX(true)
   } else if (movingRight) {
     this.player.body.velocity.x += acceleration
     this.facing = 'right'
+    this.player.setFlipX(false)
   } else {
     if (this.player.body.velocity.x > 0) {
       this.player.body.velocity.x -= drag
