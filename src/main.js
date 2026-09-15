@@ -62,6 +62,87 @@ this.load.spritesheet(
   }
 )
 
+this.load.spritesheet(
+  'enemy1Idle',
+  'src/assets/enemies/enemy1-idle.png',
+  {
+    frameWidth: 258,
+    frameHeight: 360
+  }
+)
+
+this.load.spritesheet(
+  'enemyWalk',
+  'src/assets/enemies/enemy-walk.png',
+  {
+    frameWidth: 260,
+    frameHeight: 360
+  }
+)
+
+
+this.load.spritesheet(
+  'enemyAttack',
+  'src/assets/enemies/enemy-attack.png',
+  {
+    frameWidth: 600,
+    frameHeight: 650
+  }
+)
+
+this.load.spritesheet(
+  'enemyDeath',
+  'src/assets/enemies/enemy-death.png',
+  {
+    frameWidth: 297,
+    frameHeight: 655
+  }
+)
+
+this.load.spritesheet(
+  'bossIdle',
+  'src/assets/boss/boss-idle.png',
+  {
+    frameWidth: 360,
+    frameHeight: 733
+  }
+)
+
+this.load.spritesheet(
+  'bossWalk',
+  'src/assets/boss/boss-walk.png',
+  {
+    frameWidth: 360,
+    frameHeight: 733
+  }
+)
+
+this.load.image(
+  'bossAttack1',
+  'src/assets/boss/boss-attack-clean-1.png'
+)
+
+this.load.image(
+  'bossAttack2',
+  'src/assets/boss/boss-attack-clean-2.png'
+)
+
+this.load.image(
+  'bossAttack3',
+  'src/assets/boss/boss-attack-clean-3.png'
+)
+
+this.load.image(
+  'bossAttack4',
+  'src/assets/boss/boss-attack-clean-4.png'
+)
+
+this.load.on('filecomplete-spritesheet-bossAttack', () => {
+  const texture = this.textures.get('bossAttack')
+  const source = texture.getSourceImage()
+
+  console.log('BOSS ATTACK ACTUAL SIZE:', source.width, source.height)
+})
   this.load.image('mainBackground', 'src/assets/background/main-background.png')
   this.load.image('bridgeForeground', 'src/assets/environment/bridge-foreground.png')
   this.load.image('fire', 'src/assets/hazards/fire.png')
@@ -71,7 +152,17 @@ this.load.spritesheet(
   this.load.image('columnArt', 'src/assets/environment/column.png')
   this.load.image('bossFloorArt', 'src/assets/environment/boss-floor.png')
 
-
+this.load.image('bossDeath01', 'src/assets/boss/boss-death-01.png')
+this.load.image('bossDeath02', 'src/assets/boss/boss-death-02.png')
+this.load.image('bossDeath03', 'src/assets/boss/boss-death-03.png')
+this.load.image('bossDeath04', 'src/assets/boss/boss-death-04.png')
+this.load.image('bossDeath05', 'src/assets/boss/boss-death-05.png')
+this.load.image('bossDeath06', 'src/assets/boss/boss-death-06.png')
+this.load.image('bossDeath07', 'src/assets/boss/boss-death-07.png')
+this.load.image('bossDeath08', 'src/assets/boss/boss-death-08.png')
+this.load.image('bossDeath09', 'src/assets/boss/boss-death-09.png')
+this.load.image('bossDeath10', 'src/assets/boss/boss-death-10.png')
+this.load.image('bossDeath11', 'src/assets/boss/boss-death-11.png')
 
 
 
@@ -155,16 +246,52 @@ console.log(
   this.bossFloorArt.setOrigin(0.5, 0)
   this.bossFloorArt.setDepth(-2)
         
-    // Boss
-    this.boss = this.add.rectangle(4800, 1100, 100, 160, 0x800080)
-    this.physics.add.existing(this.boss)
-    this.boss.body.setCollideWorldBounds(true)
-    this.physics.add.collider(this.boss, this.bossGround)
+    // Boss visual sprite
+this.boss = this.add.sprite(4800, 1100, 'bossIdle')
+
+this.boss.setDisplaySize(180, 365)
+this.boss.setOrigin(0.5, 1)
+this.boss.setDepth(10)
+
+
+// Invisible boss physics body
+this.bossBody = this.add.rectangle(
+  4800,
+  1055,
+  110,
+  300,
+  0xff0000,
+  0
+)
+
+this.physics.add.existing(this.bossBody)
+
+this.bossBody.body.setCollideWorldBounds(true)
+
+this.physics.add.collider( this.bossBody, this.bossGround)
+
+// Boss sword attack hitbox
+this.bossAttackHitbox = this.add.rectangle(
+  this.bossBody.x,
+  this.bossBody.y,
+  260,
+  180,
+  0xff0000,
+  0
+)
+
+this.physics.add.existing(this.bossAttackHitbox)
+
+this.bossAttackHasHit = false
+
+
     
     // Invisible barrier that blocks regular enemies from entering boss arena
     this.enemyBossBarrier = this.add.rectangle(5150, 340, 40, 680, 0xff0000, 0)
     this.physics.add.existing(this.enemyBossBarrier, true)
     this.bossHealth = 1000
+    this.bossIsAttacking = false
+    this.bossNextAttack = 0
     
 // =====================
 // BOSS HEALTH BAR
@@ -416,23 +543,7 @@ this.bossColumn1Right.setDisplaySize(50, 90)
 this.bossColumn1Right.setDepth(-1)
 
 
-// Boss Platform 2 - Center / Higher
-this.bossPlatform2 = this.add.rectangle(5200, 1038, 250, 30, 0x666666)
-this.physics.add.existing(this.bossPlatform2, true)
-this.bossPlatform2.setVisible(false)
 
-this.bossPlatformArt2 = this.add.image(5200, 1080, 'platformArt')
-this.bossPlatformArt2.setDisplaySize(250, 70)
-
-this.bossColumn2Left = this.add.image(5105, 1220, 'columnArt')
-this.bossColumn2Left.setOrigin(0.5, 1)
-this.bossColumn2Left.setDisplaySize(50, 170)
-this.bossColumn2Left.setDepth(-1)
-
-this.bossColumn2Right = this.add.image(5295, 1220, 'columnArt')
-this.bossColumn2Right.setOrigin(0.5, 1)
-this.bossColumn2Right.setDisplaySize(50, 170)
-this.bossColumn2Right.setDepth(-1)
 
 
 // Boss Platform 3 - Right
@@ -517,8 +628,103 @@ this.anims.create({
   repeat: 0
 })
 
+this.anims.create({
+  key: 'enemy1-idle',
+  frames: this.anims.generateFrameNumbers('enemy1Idle', {
+    start: 2,
+    end: 2
+  }),
+  frameRate: 6,
+  repeat: -1
+})
+
+this.anims.create({
+  key: 'enemy-walk',
+  frames: this.anims.generateFrameNumbers('enemyWalk', {
+    start: 0,
+    end: 7
+  }),
+  frameRate: 8,
+  repeat: -1
+})
+
+
+this.anims.create({
+  key: 'enemy-attack',
+  frames: this.anims.generateFrameNumbers('enemyAttack', {
+    start: 0,
+    end: 6
+  }),
+  frameRate: 10,
+  repeat: 0
+})
+
+this.anims.create({
+  key: 'enemy-death',
+  frames: this.anims.generateFrameNumbers('enemyDeath', {
+    start: 0,
+    end: 6
+  }),
+  frameRate: 8,
+  repeat: 0
+})
+
+this.anims.create({
+  key: 'boss-idle',
+  frames: this.anims.generateFrameNumbers('bossIdle', {
+    start: 1,
+    end: 1
+  }),
+  frameRate: 6,
+  repeat: -1
+})
+
+this.anims.create({
+  key: 'boss-walk',
+  frames: this.anims.generateFrameNumbers('bossWalk', {
+    start: 0,
+    end: 5
+  }),
+  frameRate: 6,
+  repeat: -1
+})
+
+this.boss.play('boss-idle')
+
+this.anims.create({
+  key: 'boss-attack',
+  frames: [
+    { key: 'bossAttack1' },
+    { key: 'bossAttack2' },
+    { key: 'bossAttack3' },
+    { key: 'bossAttack4' }
+  ],
+  frameRate: 6,
+  repeat: 0
+})
+
+this.anims.create({
+  key: 'boss-death',
+  frames: [
+    { key: 'bossDeath01' },
+    { key: 'bossDeath02' },
+    { key: 'bossDeath03' },
+    { key: 'bossDeath04' },
+    { key: 'bossDeath05' },
+    { key: 'bossDeath06' },
+    { key: 'bossDeath07' },
+    { key: 'bossDeath08' },
+    { key: 'bossDeath09' },
+    { key: 'bossDeath10' },
+    { key: 'bossDeath11' }
+  ],
+  frameRate: 6,
+  repeat: 0
+})
+
     // Player
     this.player = this.add.sprite(200, 500, 'playerIdle')
+    
     this.playerBody = this.add.rectangle(
     this.player.x,
     this.player.y,
@@ -548,6 +754,38 @@ this.playerBody.body.setAllowGravity(false)
 
     this.player.body.setCollideWorldBounds(true)
     this.player.play('player-idle')
+    this.physics.add.overlap(
+  this.player,
+  this.bossAttackHitbox,
+  () => {
+
+    if (
+      this.bossIsAttacking &&
+      !this.bossAttackHasHit &&
+      this.canTakeDamage &&
+      !this.isInvulnerable &&
+      !this.isDead
+    ) {
+
+      this.playerHealth = Math.max(
+        0,
+        this.playerHealth - 75
+      )
+
+      this.bossAttackHasHit = true
+
+      if (this.playerHealth === 0) {
+        this.isDead = true
+      }
+
+      this.canTakeDamage = false
+
+      this.time.delayedCall(500, () => {
+        this.canTakeDamage = true
+      })
+    }
+  }
+)
     this.cameraTarget = this.add.zone(this.player.x, this.player.y, 1, 1)
     this.cameras.main.startFollow(this.cameraTarget, true, 0.1, 0.1)
     this.cameras.main.setDeadzone(120, 80)
@@ -588,7 +826,7 @@ this.playerBody.body.setAllowGravity(false)
     
     // Boss arena collisions
     this.physics.add.collider(this.player, this.bossPlatform1)
-    this.physics.add.collider(this.player, this.bossPlatform2)
+    
     this.physics.add.collider(this.player, this.bossPlatform3)
     this.physics.add.collider(this.player, this.bossFloor)
     
@@ -737,10 +975,7 @@ this.healthPickup10.setDisplaySize(50, 50)
 this.physics.add.existing(this.healthPickup10, true)
 
 
-// Pickup 11 - Boss Platform 2
-this.healthPickup11 = this.add.image(5200, 1025, 'healthPotion')
-this.healthPickup11.setDisplaySize(50, 50)
-this.physics.add.existing(this.healthPickup11, true)
+
 
 
 // Pickup 12 - Boss Platform 3
@@ -761,7 +996,7 @@ const healthPickups = [
   this.healthPickup8,
   this.healthPickup9,
   this.healthPickup10,
-  this.healthPickup11,
+  
   this.healthPickup12
 ]
 
@@ -833,302 +1068,64 @@ hazards.forEach((hazard) => {
   })
 })
  
-// Enemy collision and health management
-this.enemy = this.add.rectangle(1000, 585, 50, 80, 0x00ff00)
-this.physics.add.existing(this.enemy)
-this.physics.add.collider(this.enemy, this.enemyGround)
-this.enemyHealth = 300
-this.enemyAggro = false
-this.physics.add.overlap(this.player, this.enemy, () => {
-  if (this.canTakeDamage && !this.isInvulnerable) {
-    this.playerHealth = Math.max(0, this.playerHealth - 50)
-    
-    if (this.playerHealth === 0) {
-  this.isDead = true
-  this.enemy.body.setVelocityX(0)
+// =====================
+// REGULAR ENEMIES 1-7
+// =====================
 
-  this.add.text(640, 300, 'SOULS SHATTERED', {
-    fontFamily: 'Arial',
-    fontSize: '64px',
-    color: '#ff0000'
-  }).setOrigin(0.5)
+this.enemies = [
+  this.createEnemy(1000, 585, 300, 50),
+  this.createEnemy(1900, 585, 450, 50),
+  this.createEnemy(2500, 585, 600, 75),
+  this.createEnemy(3100, 585, 450, 50),
+  this.createEnemy(3600, 585, 600, 75),
+  this.createEnemy(4100, 585, 300, 100),
+  this.createEnemy(4600, 585, 750, 100)
+]
+
+// Keep old enemy names available
+;[
+  this.enemy,
+  this.enemy2,
+  this.enemy3,
+  this.enemy4,
+  this.enemy5,
+  this.enemy6,
+  this.enemy7
+] = this.enemies
+
+// Player sword damage against all regular enemies
+this.enemies.forEach((enemy, index) => {
+  this.physics.add.overlap(this.swordHitbox, enemy.hurtbox, () => {
+    if (!this.attackHasHit && enemy.active) {
+      enemy.health = Math.max(0, enemy.health - this.swordDamage)
+      this.attackHasHit = true
+
+      console.log(`Enemy ${index + 1} Health: ${enemy.health}`)
+
+      if (enemy.health === 0 && !enemy.isDying) {
+  enemy.isDying = true
+
+  // Stop all enemy movement and attacks
+  enemy.body.setVelocity(0, 0)
+  enemy.body.setAllowGravity(false)
+
+  // Disable the permanent hurtbox
+  enemy.hurtbox.body.enable = false
+
+  // Play death animation
+  enemy.play('enemy-death')
+
+  // Remove the enemy only after the animation finishes
+  enemy.once('animationcomplete-enemy-death', () => {
+    if (enemy.hurtbox) {
+      enemy.hurtbox.destroy()
+    }
+
+    enemy.destroy()
+  })
 }
-    this.canTakeDamage = false
-
-    this.time.delayedCall(500, () => {
-      this.canTakeDamage = true
-    })
-  }
-})
-this.physics.add.overlap(this.swordHitbox, this.enemy, () => {
-  if (!this.attackHasHit) {
-    this.enemyHealth = Math.max(0, this.enemyHealth - this.swordDamage)
-    this.attackHasHit = true
-    console.log(`Enemy Health: ${this.enemyHealth}`)
-    
-    if (this.enemyHealth === 0) {
-    this.enemy.destroy()
-}
-  }
-})
-
-// Second Enemy collision and health management
-this.enemy2 = this.add.rectangle(1900, 585, 50, 80, 0x00ff00)
-this.physics.add.existing(this.enemy2)
-this.physics.add.collider(this.enemy2, this.enemyGround)
-this.enemy2Health = 450
-this.enemy2Aggro = false
-this.physics.add.overlap(this.player, this.enemy2, () => {
-  if (this.canTakeDamage && !this.isInvulnerable) {
-    this.playerHealth = Math.max(0, this.playerHealth - 50)
-    
-
-    if (this.playerHealth === 0) {
-      this.isDead = true
-      this.enemy2.body.setVelocityX(0)
-
-      this.add.text(640, 300, 'SOULS SHATTERED', {
-        fontFamily: 'Arial',
-        fontSize: '64px',
-        color: '#ff0000'
-      }).setOrigin(0.5).setScrollFactor(0)
     }
-
-    this.canTakeDamage = false
-
-    this.time.delayedCall(500, () => {
-      this.canTakeDamage = true
-    })
-  }
-})
-
-this.physics.add.overlap(this.swordHitbox, this.enemy2, () => {
-  if (!this.attackHasHit) {
-    this.enemy2Health = Math.max(0, this.enemy2Health - this.swordDamage)
-    this.attackHasHit = true
-    console.log(`Enemy 2 Health: ${this.enemy2Health}`)
-
-    if (this.enemy2Health === 0) {
-      this.enemy2.destroy()
-    }
-  }
-})
-
-// Enemy 3 collision and health management
-this.enemy3 = this.add.rectangle(2500, 585, 50, 80, 0x00ff00)
-this.physics.add.existing(this.enemy3)
-this.physics.add.collider(this.enemy3, this.enemyGround)
-this.enemy3Health = 600
-this.enemy3Aggro = false
-
-this.physics.add.overlap(this.player, this.enemy3, () => {
-  if (this.canTakeDamage && !this.isInvulnerable) {
-    this.playerHealth = Math.max(0, this.playerHealth - 75)
-    
-
-    if (this.playerHealth === 0) {
-      this.isDead = true
-      this.enemy3.body.setVelocityX(0)
-
-      this.add.text(640, 300, 'SOULS SHATTERED', {
-        fontFamily: 'Arial',
-        fontSize: '64px',
-        color: '#ff0000'
-      }).setOrigin(0.5).setScrollFactor(0)
-    }
-
-    this.canTakeDamage = false
-
-    this.time.delayedCall(500, () => {
-      this.canTakeDamage = true
-    })
-  }
-})
-
-this.physics.add.overlap(this.swordHitbox, this.enemy3, () => {
-  if (!this.attackHasHit) {
-    this.enemy3Health = Math.max(0, this.enemy3Health - this.swordDamage)
-    this.attackHasHit = true
-    console.log(`Enemy 3 Health: ${this.enemy3Health}`)
-
-    if (this.enemy3Health === 0) {
-      this.enemy3.destroy()
-    }
-  }
-})
-// End of Enemy 3 collision and health management
-
-// Enemy 4
-this.enemy4 = this.add.rectangle(3100, 585, 50, 80, 0x00bfff)
-this.physics.add.existing(this.enemy4)
-this.physics.add.collider(this.enemy4, this.enemyGround)
-this.enemy4Health = 450
-this.enemy4Aggro = false
-
-this.physics.add.overlap(this.player, this.enemy4, () => {
-  if (this.canTakeDamage && !this.isInvulnerable) {
-    this.playerHealth = Math.max(0, this.playerHealth - 50)
-    
-
-    if (this.playerHealth === 0) {
-      this.isDead = true
-      this.enemy4.body.setVelocityX(0)
-
-      this.add.text(640, 300, 'SOULS SHATTERED', {
-        fontFamily: 'Arial',
-        fontSize: '64px',
-        color: '#ff0000'
-      }).setOrigin(0.5).setScrollFactor(0)
-    }
-
-    this.canTakeDamage = false
-
-    this.time.delayedCall(500, () => {
-      this.canTakeDamage = true
-    })
-  }
-})
-
-this.physics.add.overlap(this.swordHitbox, this.enemy4, () => {
-  if (!this.attackHasHit) {
-    this.enemy4Health = Math.max(0, this.enemy4Health - this.swordDamage)
-    this.attackHasHit = true
-    console.log(`Enemy 4 Health: ${this.enemy4Health}`)
-
-    if (this.enemy4Health === 0) {
-      this.enemy4.destroy()
-    }
-  }
-})
-
-
-// Enemy 5
-this.enemy5 = this.add.rectangle(3600, 575, 60, 90, 0xffa500)
-this.physics.add.existing(this.enemy5)
-this.physics.add.collider(this.enemy5, this.enemyGround)
-this.enemy5Health = 600
-this.enemy5Aggro = false
-this.physics.add.overlap(this.player, this.enemy5, () => {
-  if (this.canTakeDamage && !this.isInvulnerable) {
-    this.playerHealth = Math.max(0, this.playerHealth - 75)
-    
-
-    if (this.playerHealth === 0) {
-      this.isDead = true
-      this.enemy5.body.setVelocityX(0)
-
-      this.add.text(640, 300, 'SOULS SHATTERED', {
-        fontFamily: 'Arial',
-        fontSize: '64px',
-        color: '#ff0000'
-      }).setOrigin(0.5).setScrollFactor(0)
-    }
-
-    this.canTakeDamage = false
-
-    this.time.delayedCall(500, () => {
-      this.canTakeDamage = true
-    })
-  }
-})
-
-this.physics.add.overlap(this.swordHitbox, this.enemy5, () => {
-  if (!this.attackHasHit) {
-    this.enemy5Health = Math.max(0, this.enemy5Health - this.swordDamage)
-    this.attackHasHit = true
-    console.log(`Enemy 5 Health: ${this.enemy5Health}`)
-
-    if (this.enemy5Health === 0) {
-      this.enemy5.destroy()
-    }
-  }
-})
-
-
-// Enemy 6
-this.enemy6 = this.add.rectangle(4100, 590, 45, 70, 0xff00ff)
-this.physics.add.existing(this.enemy6)
-this.physics.add.collider(this.enemy6, this.enemyGround)
-this.enemy6Health = 300
-this.enemy6Aggro = false
-this.physics.add.overlap(this.player, this.enemy6, () => {
-  if (this.canTakeDamage && !this.isInvulnerable) {
-    this.playerHealth = Math.max(0, this.playerHealth - 100)
-    
-
-    if (this.playerHealth === 0) {
-      this.isDead = true
-      this.enemy6.body.setVelocityX(0)
-
-      this.add.text(640, 300, 'SOULS SHATTERED', {
-        fontFamily: 'Arial',
-        fontSize: '64px',
-        color: '#ff0000'
-      }).setOrigin(0.5).setScrollFactor(0)
-    }
-
-    this.canTakeDamage = false
-
-    this.time.delayedCall(500, () => {
-      this.canTakeDamage = true
-    })
-  }
-})
-
-this.physics.add.overlap(this.swordHitbox, this.enemy6, () => {
-  if (!this.attackHasHit) {
-    this.enemy6Health = Math.max(0, this.enemy6Health - this.swordDamage)
-    this.attackHasHit = true
-    console.log(`Enemy 6 Health: ${this.enemy6Health}`)
-
-    if (this.enemy6Health === 0) {
-      this.enemy6.destroy()
-    }
-  }
-})
-
-
-// Enemy 7
-this.enemy7 = this.add.rectangle(4600, 575, 70, 100, 0xff4500)
-this.physics.add.existing(this.enemy7)
-this.physics.add.collider(this.enemy7, this.enemyGround)
-this.enemy7Health = 750
-this.enemy7Aggro = false
-
-this.physics.add.overlap(this.player, this.enemy7, () => {
-  if (this.canTakeDamage && !this.isInvulnerable) {
-    this.playerHealth = Math.max(0, this.playerHealth - 100)
-    
-
-    if (this.playerHealth === 0) {
-      this.isDead = true
-      this.enemy7.body.setVelocityX(0)
-
-      this.add.text(640, 300, 'SOULS SHATTERED', {
-        fontFamily: 'Arial',
-        fontSize: '64px',
-        color: '#ff0000'
-      }).setOrigin(0.5).setScrollFactor(0)
-    }
-
-    this.canTakeDamage = false
-
-    this.time.delayedCall(500, () => {
-      this.canTakeDamage = true
-    })
-  }
-})
-
-this.physics.add.overlap(this.swordHitbox, this.enemy7, () => {
-  if (!this.attackHasHit) {
-    this.enemy7Health = Math.max(0, this.enemy7Health - this.swordDamage)
-    this.attackHasHit = true
-    console.log(`Enemy 7 Health: ${this.enemy7Health}`)
-
-    if (this.enemy7Health === 0) {
-      this.enemy7.destroy()
-    }
-  }
+  })
 })
 
 // Enemy boss barrier collisions
@@ -1143,53 +1140,198 @@ this.physics.add.collider(this.enemy7, this.enemyBossBarrier)
 
 
 // Boss collision and health management
-this.physics.add.overlap(this.swordHitbox, this.boss, () => {
-  if (!this.attackHasHit) {
-    this.bossHealth = Math.max(0, this.bossHealth - this.swordDamage)
+this.physics.add.overlap(this.swordHitbox, this.bossBody, () => {
+
+  if (!this.attackHasHit && !this.bossIsDead) {
+
+    this.bossHealth = Math.max(
+      0,
+      this.bossHealth - this.swordDamage
+    )
+
     this.attackHasHit = true
+
     console.log('Boss Health:', this.bossHealth)
+
     if (this.bossHealth === 0) {
-  this.boss.destroy()
-  this.isVictorious = true
-  this.bossNameText.setVisible(false)
-  this.bossHealthBarBackground.setVisible(false)
-  this.bossHealthBar.setVisible(false)
 
-  this.add.text(640, 260, 'SOUL RESTORED', {
-    fontFamily: 'Arial',
-    fontSize: '64px',
-    color: '#00aaff'
-  }).setOrigin(0.5).setScrollFactor(0)
+      // Mark boss as dead
+      this.bossIsDead = true
+      this.bossIsAttacking = false
 
-  this.add.text(640, 330, 'The shattered soul has been reclaimed.', {
-    fontFamily: 'Arial',
-    fontSize: '28px',
-    color: '#00aaff'
-  }).setOrigin(0.5).setScrollFactor(0)
+      // Stop and disable boss physics
+      this.bossBody.body.setVelocityX(0)
+      this.bossBody.body.enable = false
 
-  this.add.text(640, 390, 'Press R to Play Again', {
-    fontFamily: 'Arial',
-    fontSize: '24px',
-    color: '#00aaff'
-  }).setOrigin(0.5).setScrollFactor(0)
-}
+      // Hide boss health HUD
+      this.bossNameText.setVisible(false)
+      this.bossHealthBarBackground.setVisible(false)
+      this.bossHealthBar.setVisible(false)
+
+      // Play the full Wraith Knight death animation
+      this.boss.play('boss-death')
+
+      // Wait until death animation finishes
+      this.boss.once('animationcomplete-boss-death', () => {
+
+        this.boss.destroy()
+
+        this.isVictorious = true
+
+        this.add.text(640, 260, 'SOUL RESTORED', {
+          fontFamily: 'Arial',
+          fontSize: '64px',
+          color: '#00aaff'
+        }).setOrigin(0.5).setScrollFactor(0)
+
+        this.add.text(
+          640,
+          330,
+          'The shattered soul has been reclaimed.',
+          {
+            fontFamily: 'Arial',
+            fontSize: '28px',
+            color: '#00aaff'
+          }
+        ).setOrigin(0.5).setScrollFactor(0)
+
+        this.add.text(640, 390, 'Press R to Play Again', {
+          fontFamily: 'Arial',
+          fontSize: '24px',
+          color: '#00aaff'
+        }).setOrigin(0.5).setScrollFactor(0)
+
+      })
+    }
   }
 })
 
-this.physics.add.overlap(this.player, this.boss, () => {
-  if (this.canTakeDamage && !this.isInvulnerable) {
-    this.playerHealth = Math.max(0, this.playerHealth - 75)
-    
-    if (this.playerHealth === 0) {
-  this.isDead = true
-  this.boss.body.setVelocityX(0)
+this.physics.add.overlap(this.player, this.bossBody, () => {
 
-  this.add.text(640, 300, 'SOULS SHATTERED', {
-    fontFamily: 'Arial',
-    fontSize: '64px',
-    color: '#ff0000'
-  }).setOrigin(0.5).setScrollFactor(0)
-}
+  if (
+    this.canTakeDamage &&
+    !this.isInvulnerable &&
+    !this.bossIsDead
+  ) {
+
+    this.playerHealth = Math.max(
+      0,
+      this.playerHealth - 75
+    )
+
+    if (this.playerHealth === 0) {
+
+      this.isDead = true
+
+      this.bossBody.body.setVelocityX(0)
+
+      this.add.text(640, 300, 'SOULS SHATTERED', {
+        fontFamily: 'Arial',
+        fontSize: '64px',
+        color: '#ff0000'
+      }).setOrigin(0.5).setScrollFactor(0)
+    }
+
+    this.canTakeDamage = false
+
+    this.time.delayedCall(500, () => {
+      this.canTakeDamage = true
+    })
+  }
+})
+
+// end of create method// Boss collision and health management
+this.physics.add.overlap(this.swordHitbox, this.bossBody, () => {
+
+  if (!this.attackHasHit && !this.bossIsDead) {
+
+    this.bossHealth = Math.max(
+      0,
+      this.bossHealth - this.swordDamage
+    )
+
+    this.attackHasHit = true
+
+    console.log('Boss Health:', this.bossHealth)
+
+    if (this.bossHealth === 0) {
+
+      // Mark boss as dead
+      this.bossIsDead = true
+      this.bossIsAttacking = false
+
+      // Stop and disable boss physics
+      this.bossBody.body.setVelocityX(0)
+      this.bossBody.body.enable = false
+
+      // Hide boss health HUD
+      this.bossNameText.setVisible(false)
+      this.bossHealthBarBackground.setVisible(false)
+      this.bossHealthBar.setVisible(false)
+
+      // Play the full Wraith Knight death animation
+      this.boss.play('boss-death')
+
+      // Wait until death animation finishes
+      this.boss.once('animationcomplete-boss-death', () => {
+
+        this.boss.destroy()
+
+        this.isVictorious = true
+
+        this.add.text(640, 260, 'SOUL RESTORED', {
+          fontFamily: 'Arial',
+          fontSize: '64px',
+          color: '#00aaff'
+        }).setOrigin(0.5).setScrollFactor(0)
+
+        this.add.text(
+          640,
+          330,
+          'The shattered soul has been reclaimed.',
+          {
+            fontFamily: 'Arial',
+            fontSize: '28px',
+            color: '#00aaff'
+          }
+        ).setOrigin(0.5).setScrollFactor(0)
+
+        this.add.text(640, 390, 'Press R to Play Again', {
+          fontFamily: 'Arial',
+          fontSize: '24px',
+          color: '#00aaff'
+        }).setOrigin(0.5).setScrollFactor(0)
+
+      })
+    }
+  }
+})
+
+this.physics.add.overlap(this.player, this.bossBody, () => {
+
+  if (
+    this.canTakeDamage &&
+    !this.isInvulnerable &&
+    !this.bossIsDead
+  ) {
+
+    this.playerHealth = Math.max(
+      0,
+      this.playerHealth - 75
+    )
+
+    if (this.playerHealth === 0) {
+
+      this.isDead = true
+
+      this.bossBody.body.setVelocityX(0)
+
+      this.add.text(640, 300, 'SOULS SHATTERED', {
+        fontFamily: 'Arial',
+        fontSize: '64px',
+        color: '#ff0000'
+      }).setOrigin(0.5).setScrollFactor(0)
+    }
 
     this.canTakeDamage = false
 
@@ -1200,7 +1342,40 @@ this.physics.add.overlap(this.player, this.boss, () => {
 })
 
 // end of create method
+
 }
+
+createEnemy(x, y, health, damage) {
+  const enemy = this.add.sprite(x, y, 'enemy1Idle')
+
+  enemy.setDisplaySize(110, 155)
+  enemy.setOrigin(0.5, 0.75)
+
+  this.physics.add.existing(enemy)
+
+  enemy.body.setSize(80, 100, true)
+
+  this.physics.add.collider(enemy, this.ground)
+  this.physics.add.collider(enemy, this.enemyBossBarrier)
+
+  enemy.health = health
+  enemy.damage = damage
+  enemy.aggro = false
+  enemy.nextAttack = 0
+  enemy.isDying = false
+
+  enemy.play('enemy1-idle')
+
+  // Permanent invisible hurtbox
+  enemy.hurtbox = this.add.zone(enemy.x, enemy.y, 80, 100)
+
+  this.physics.add.existing(enemy.hurtbox)
+
+  enemy.hurtbox.body.setAllowGravity(false)
+
+  return enemy
+}
+
 
   update() {
   
@@ -1387,143 +1562,123 @@ if (this.player.body.velocity.y > 0) {
   this.player.body.velocity.y += 20
 }
 
-// Enemy 1 aggro + movement
-if (this.enemy.active) {
-  const distanceToEnemy = Math.abs(this.player.x - this.enemy.x)
+// =====================
+// REGULAR ENEMY AI
+// Enemies 1-7
+// =====================
 
-  if (!this.enemyAggro && distanceToEnemy <= 500) {
-    this.enemyAggro = true
+this.enemies.forEach((enemy) => {
+  if (!enemy.active || enemy.isDying) return
+
+  enemy.hurtbox.setPosition(enemy.x, enemy.y)
+
+  const distanceX = Math.abs(this.player.x - enemy.x)
+  const distanceY = Math.abs(this.player.y - enemy.y)
+  
+  // If the player is too far above or below the enemy,
+  // stop moving and return to idle.
+if (distanceY > 90) {
+  enemy.body.setVelocityX(0)
+
+  if (enemy.anims.currentAnim?.key !== 'enemy1-idle') {
+    enemy.play('enemy1-idle')
   }
 
-  if (this.enemyAggro) {
-    if (this.player.x < this.enemy.x) {
-      this.enemy.body.setVelocityX(-100)
-    } else {
-      this.enemy.body.setVelocityX(100)
-    }
-  } else {
-    this.enemy.body.setVelocityX(0)
-  }
+  return
 }
 
-// Enemy 2 aggro + movement
-if (this.enemy2.active) {
-  const distanceToEnemy2 = Math.abs(this.player.x - this.enemy2.x)
-
-  if (!this.enemy2Aggro && distanceToEnemy2 <= 500) {
-    this.enemy2Aggro = true
+  // Permanently aggro once player gets close
+  if (!enemy.aggro && distanceX <= 500) {
+    enemy.aggro = true
   }
 
-  if (this.enemy2Aggro) {
-    if (this.player.x < this.enemy2.x) {
-      this.enemy2.body.setVelocityX(-100)
-    } else {
-      this.enemy2.body.setVelocityX(100)
-    }
-  } else {
-    this.enemy2.body.setVelocityX(0)
+  if (!enemy.aggro) {
+    enemy.body.setVelocityX(0)
+    return
   }
+
+  const stopDistance = 70
+
+  // Face player
+  enemy.setFlipX(this.player.x < enemy.x)
+
+  // ATTACK
+  if (distanceX <= stopDistance && distanceY <= 90) {
+    enemy.body.setVelocityX(0)
+
+    if (
+      this.time.now >= enemy.nextAttack &&
+      (
+        enemy.anims.currentAnim?.key !== 'enemy-attack' ||
+        !enemy.anims.isPlaying
+      )
+    ) {
+      enemy.nextAttack = this.time.now + 1200
+
+      enemy.body.setVelocity(0, 0)
+      enemy.body.setAllowGravity(false)
+
+      enemy.play('enemy-attack')
+      enemy.setScale(0.37)
+
+      
+
+      this.time.delayedCall(300, () => {
+        if (!enemy.active) return
+
+        const attackDistanceX = Math.abs(this.player.x - enemy.x)
+        const attackDistanceY = Math.abs(this.player.y - enemy.y)
+
+        if (
+          attackDistanceX <= 90 &&
+          attackDistanceY <= 90 &&
+          this.canTakeDamage &&
+          !this.isInvulnerable
+        ) {
+          this.playerHealth = Math.max(
+            0,
+            this.playerHealth - enemy.damage
+          )
+
+          this.canTakeDamage = false
+
+          if (this.playerHealth === 0) {
+  this.isDead = true
+  enemy.body.setVelocityX(0)
+
+  this.add.text(640, 300, 'SOULS SHATTERED', {
+    fontFamily: 'Arial',
+    fontSize: '64px',
+    color: '#ff0000'
+  })
+    .setOrigin(0.5)
+    .setScrollFactor(0)
 }
 
-
-// Enemy 3 aggro + movement
-if (this.enemy3.active) {
-  const distanceToEnemy3 = Math.abs(this.player.x - this.enemy3.x)
-
-  if (!this.enemy3Aggro && distanceToEnemy3 <= 500) {
-    this.enemy3Aggro = true
-  }
-
-  if (this.enemy3Aggro) {
-    if (this.player.x < this.enemy3.x) {
-      this.enemy3.body.setVelocityX(-100)
-    } else {
-      this.enemy3.body.setVelocityX(100)
+          this.time.delayedCall(500, () => {
+            this.canTakeDamage = true
+          })
+        }
+      })
     }
+
+  // PLAYER MOVED AWAY — CHASE
   } else {
-    this.enemy3.body.setVelocityX(0)
-  }
+    enemy.body.setAllowGravity(true)
+    enemy.setDisplaySize(110, 155)
+    enemy.body.setSize(80, 100, true)
+
+    if (enemy.anims.currentAnim?.key !== 'enemy-walk') {
+  enemy.play('enemy-walk')
 }
 
-
-// Enemy 4 aggro + movement
-if (this.enemy4.active) {
-  const distanceToEnemy4 = Math.abs(this.player.x - this.enemy4.x)
-
-  if (!this.enemy4Aggro && distanceToEnemy4 <= 500) {
-    this.enemy4Aggro = true
-  }
-
-  if (this.enemy4Aggro) {
-    if (this.player.x < this.enemy4.x) {
-      this.enemy4.body.setVelocityX(-100)
+    if (this.player.x < enemy.x) {
+      enemy.body.setVelocityX(-100)
     } else {
-      this.enemy4.body.setVelocityX(100)
+      enemy.body.setVelocityX(100)
     }
-  } else {
-    this.enemy4.body.setVelocityX(0)
   }
-}
-
-
-// Enemy 5 aggro + movement
-if (this.enemy5.active) {
-  const distanceToEnemy5 = Math.abs(this.player.x - this.enemy5.x)
-
-  if (!this.enemy5Aggro && distanceToEnemy5 <= 500) {
-    this.enemy5Aggro = true
-  }
-
-  if (this.enemy5Aggro) {
-    if (this.player.x < this.enemy5.x) {
-      this.enemy5.body.setVelocityX(-90)
-    } else {
-      this.enemy5.body.setVelocityX(90)
-    }
-  } else {
-    this.enemy5.body.setVelocityX(0)
-  }
-}
-
-
-// Enemy 6 aggro + movement
-if (this.enemy6.active) {
-  const distanceToEnemy6 = Math.abs(this.player.x - this.enemy6.x)
-
-  if (!this.enemy6Aggro && distanceToEnemy6 <= 500) {
-    this.enemy6Aggro = true
-  }
-
-  if (this.enemy6Aggro) {
-    if (this.player.x < this.enemy6.x) {
-      this.enemy6.body.setVelocityX(-130)
-    } else {
-      this.enemy6.body.setVelocityX(130)
-    }
-  } else {
-    this.enemy6.body.setVelocityX(0)
-  }
-}
-
-
-// Enemy 7 aggro + movement
-if (this.enemy7.active) {
-  const distanceToEnemy7 = Math.abs(this.player.x - this.enemy7.x)
-
-  if (!this.enemy7Aggro && distanceToEnemy7 <= 500) {
-    this.enemy7Aggro = true
-  }
-
-  if (this.enemy7Aggro) {
-    if (this.player.x < this.enemy7.x) {
-      this.enemy7.body.setVelocityX(-80)
-    } else {
-      this.enemy7.body.setVelocityX(80)
-    }
-  } else {
-    this.enemy7.body.setVelocityX(0)
-  }
-}
+})
 
 
 
@@ -1538,19 +1693,144 @@ if (this.player.y > 900 && this.boss.active) {
 
 
 
-// Boss movement towards player
-if (this.boss.active && this.player.y > 900) {
-  if (this.player.x < this.boss.x) {
-    this.boss.body.setVelocityX(-75)
-  } else {
-    this.boss.body.setVelocityX(75)
-  }
+if (this.boss.active && this.bossBody.active) {
+
+  const bossYOffset = this.bossIsAttacking ? 215 : 180
+
+  this.boss.setPosition(
+    this.bossBody.x,
+    this.bossBody.y + bossYOffset
+  )
+
 }
 
+// Boss movement towards player
+if (
+  this.boss.active &&
+  this.player.x >= 4400 &&
+  !this.bossIsDead
+) {
+
+  const bossDistanceX = Math.abs(
+    this.player.x - this.bossBody.x
+  )
+
+  const bossStopDistance = 140
+
+  // Face the player
+
+this.boss.setFlipX(
+  this.player.x < this.bossBody.x
+)
+const bossFacingLeft =
+  this.player.x < this.bossBody.x
+
+const bossAttackOffset = 200
+
+this.bossAttackHitbox.setPosition(
+  this.bossBody.x +
+    (bossFacingLeft ? -bossAttackOffset : bossAttackOffset),
+  this.bossBody.y + 180
+)
+
+this.bossAttackHitbox.body.enable =
+  this.bossIsAttacking
+
+if (this.bossIsAttacking) {
+
+  // Freeze the boss completely while the attack animation plays
+  this.bossBody.body.setVelocityX(0)
+
+} else if (bossDistanceX <= bossStopDistance) {
+
+  this.bossBody.body.setVelocityX(0)
+
+  if (this.time.now >= this.bossNextAttack) {
+
+    this.bossIsAttacking = true
+
+    this.boss.play('boss-attack', true)
+    this.bossAttackHasHit = false
+    this.time.delayedCall(330, () => {
+
+  if (!this.boss.active || this.isDead) return
+
+  const attackDistanceX = Math.abs(
+    this.player.x - this.bossBody.x
+  )
+
+  const attackDistanceY = Math.abs(
+    this.player.y - this.bossBody.y
+  )
+
+  if (
+    attackDistanceX <= 200 &&
+    attackDistanceY <= 250 &&
+    !this.bossAttackHasHit &&
+    this.canTakeDamage &&
+    !this.isInvulnerable
+  ) {
+
+    this.playerHealth = Math.max(
+      0,
+      this.playerHealth - 75
+    )
+
+    this.bossAttackHasHit = true
+
+    this.canTakeDamage = false
+
+    if (this.playerHealth === 0) {
+  this.isDead = true
+
+  this.add.text(640, 300, 'SOULS SHATTERED', {
+    fontFamily: 'Arial',
+    fontSize: '64px',
+    color: '#ff0000'
+  })
+    .setOrigin(0.5)
+    .setScrollFactor(0)
+}
+
+    this.time.delayedCall(500, () => {
+      this.canTakeDamage = true
+    })
+  }
+})
+
+    this.boss.once('animationcomplete-boss-attack', () => {
+  this.bossIsAttacking = false
+  this.bossNextAttack = 0
+})
+
+  } else {
+
+    this.boss.play('boss-idle', true)
+
+  }
+
+} else if (this.player.x < this.bossBody.x) {
+
+  this.bossBody.body.setVelocityX(-75)
+  this.boss.play('boss-walk', true)
+
+} else {
+
+  this.bossBody.body.setVelocityX(75)
+  this.boss.play('boss-walk', true)
+
+}
+
+}
+
+
+
 // Stamina regeneration
+
 if (this.stamina < this.maxStamina) {
+
   this.stamina = Math.min(this.maxStamina, this.stamina + 0.5)
-  
+
 }
   // Update health bar
 const healthPercent = this.playerHealth / 1000
