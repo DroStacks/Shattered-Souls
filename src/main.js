@@ -9,7 +9,7 @@ class GameScene extends Phaser.Scene {
   preload() {
   this.load.spritesheet(
   'playerIdle',
-  'src/assets/player/player-idle.png',
+  'assets/player/player-idle.png',
   {
     frameWidth: 333,
     frameHeight: 724
@@ -18,7 +18,7 @@ class GameScene extends Phaser.Scene {
 
 this.load.spritesheet(
   'playerWalk',
-  'src/assets/player/player-walk.png',
+  'assets/player/player-walk.png',
   {
     frameWidth: 362,
     frameHeight: 724
@@ -27,7 +27,7 @@ this.load.spritesheet(
 
 this.load.spritesheet(
   'playerAttack',
-  'src/assets/player/player-attack.png',
+  'assets/player/player-attack.png',
   {
     frameWidth: 560,
     frameHeight: 746
@@ -36,7 +36,7 @@ this.load.spritesheet(
 
 this.load.spritesheet(
   'playerJump',
-  'src/assets/player/player-jump.png',
+  'assets/player/player-jump.png',
   {
     frameWidth: 543,
     frameHeight: 724
@@ -45,7 +45,7 @@ this.load.spritesheet(
 
 this.load.spritesheet(
   'playerDash',
-  'src/assets/player/player-dash.png',
+  'assets/player/player-dash.png',
   {
     frameWidth: 543,
     frameHeight: 724
@@ -55,7 +55,7 @@ this.load.spritesheet(
 
 this.load.spritesheet(
   'playerDeath',
-  'src/assets/player/player-death.png',
+  'assets/player/player-death.png',
   {
     frameWidth: 362,
     frameHeight: 724
@@ -64,7 +64,7 @@ this.load.spritesheet(
 
 this.load.spritesheet(
   'enemy1Idle',
-  'src/assets/enemies/enemy1-idle.png',
+  'assets/enemies/enemy1-idle.png',
   {
     frameWidth: 258,
     frameHeight: 360
@@ -73,7 +73,7 @@ this.load.spritesheet(
 
 this.load.spritesheet(
   'enemyWalk',
-  'src/assets/enemies/enemy-walk.png',
+  'assets/enemies/enemy-walk.png',
   {
     frameWidth: 260,
     frameHeight: 360
@@ -83,7 +83,7 @@ this.load.spritesheet(
 
 this.load.spritesheet(
   'enemyAttack',
-  'src/assets/enemies/enemy-attack.png',
+  'assets/enemies/enemy-attack.png',
   {
     frameWidth: 600,
     frameHeight: 650
@@ -92,7 +92,7 @@ this.load.spritesheet(
 
 this.load.spritesheet(
   'enemyDeath',
-  'src/assets/enemies/enemy-death.png',
+  'assets/enemies/enemy-death.png',
   {
     frameWidth: 297,
     frameHeight: 655
@@ -101,7 +101,7 @@ this.load.spritesheet(
 
 this.load.spritesheet(
   'bossIdle',
-  'src/assets/boss/boss-idle.png',
+  'assets/boss/boss-idle.png',
   {
     frameWidth: 360,
     frameHeight: 733
@@ -110,7 +110,7 @@ this.load.spritesheet(
 
 this.load.spritesheet(
   'bossWalk',
-  'src/assets/boss/boss-walk.png',
+  'assets/boss/boss-walk.png',
   {
     frameWidth: 360,
     frameHeight: 733
@@ -119,22 +119,22 @@ this.load.spritesheet(
 
 this.load.image(
   'bossAttack1',
-  'src/assets/boss/boss-attack-clean-1.png'
+  'assets/boss/boss-attack-clean-1.png'
 )
 
 this.load.image(
   'bossAttack2',
-  'src/assets/boss/boss-attack-clean-2.png'
+  'assets/boss/boss-attack-clean-2.png'
 )
 
 this.load.image(
   'bossAttack3',
-  'src/assets/boss/boss-attack-clean-3.png'
+  'assets/boss/boss-attack-clean-3.png'
 )
 
 this.load.image(
   'bossAttack4',
-  'src/assets/boss/boss-attack-clean-4.png'
+  'assets/boss/boss-attack-clean-4.png'
 )
 
 this.load.on('filecomplete-spritesheet-bossAttack', () => {
@@ -143,26 +143,26 @@ this.load.on('filecomplete-spritesheet-bossAttack', () => {
 
   console.log('BOSS ATTACK ACTUAL SIZE:', source.width, source.height)
 })
-  this.load.image('mainBackground', 'src/assets/background/main-background.png')
-  this.load.image('bridgeForeground', 'src/assets/environment/bridge-foreground.png')
-  this.load.image('fire', 'src/assets/hazards/fire.png')
-  this.load.image('healthPotion', 'src/assets/pickups/health-potion.png')  
-  this.load.image('playerHud', 'src/assets/ui/player-hud.png')
-  this.load.image('platformArt', 'src/assets/environment/platform.png')
-  this.load.image('columnArt', 'src/assets/environment/column.png')
-  this.load.image('bossFloorArt', 'src/assets/environment/boss-floor.png')
+  this.load.image('mainBackground', 'assets/background/main-background.png')
+  this.load.image('bridgeForeground', 'assets/environment/bridge-foreground.png')
+  this.load.image('fire', 'assets/hazards/fire.png')
+  this.load.image('healthPotion', 'assets/pickups/health-potion.png')  
+  this.load.image('playerHud', 'assets/ui/player-hud.png')
+  this.load.image('platformArt', 'assets/environment/platform.png')
+  this.load.image('columnArt', 'assets/environment/column.png')
+  this.load.image('bossFloorArt', 'assets/environment/boss-floor.png')
 
-this.load.image('bossDeath01', 'src/assets/boss/boss-death-01.png')
-this.load.image('bossDeath02', 'src/assets/boss/boss-death-02.png')
-this.load.image('bossDeath03', 'src/assets/boss/boss-death-03.png')
-this.load.image('bossDeath04', 'src/assets/boss/boss-death-04.png')
-this.load.image('bossDeath05', 'src/assets/boss/boss-death-05.png')
-this.load.image('bossDeath06', 'src/assets/boss/boss-death-06.png')
-this.load.image('bossDeath07', 'src/assets/boss/boss-death-07.png')
-this.load.image('bossDeath08', 'src/assets/boss/boss-death-08.png')
-this.load.image('bossDeath09', 'src/assets/boss/boss-death-09.png')
-this.load.image('bossDeath10', 'src/assets/boss/boss-death-10.png')
-this.load.image('bossDeath11', 'src/assets/boss/boss-death-11.png')
+this.load.image('bossDeath01', 'assets/boss/boss-death-01.png')
+this.load.image('bossDeath02', 'assets/boss/boss-death-02.png')
+this.load.image('bossDeath03', 'assets/boss/boss-death-03.png')
+this.load.image('bossDeath04', 'assets/boss/boss-death-04.png')
+this.load.image('bossDeath05', 'assets/boss/boss-death-05.png')
+this.load.image('bossDeath06', 'assets/boss/boss-death-06.png')
+this.load.image('bossDeath07', 'assets/boss/boss-death-07.png')
+this.load.image('bossDeath08', 'assets/boss/boss-death-08.png')
+this.load.image('bossDeath09', 'assets/boss/boss-death-09.png')
+this.load.image('bossDeath10', 'assets/boss/boss-death-10.png')
+this.load.image('bossDeath11', 'assets/boss/boss-death-11.png')
 
 
 
